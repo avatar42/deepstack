@@ -1,9 +1,9 @@
-# DeepStack
-DeepStack utils.
+# DeepStack utils.
 
-Run DeepStack pulling new image if needed.
+##Run DeepStack pulling new image if needed.
 
-**docker run -e VISION-FACE=True -e VISION-DETECTION=True -e MODE=Medium -v /deepstack/mymodels:/modelstore/detection -v /deepstack/myfaces:/DeepStack/Faces --name DSfaces -p 82:5000 deepquestai/deepstack**
+**docker run -e VISION-FACE=True -e VISION-DETECTION=True -e VISION-SCENE=True -v localstorage:/datastore -e MODE=Medium -v /deepstack/mymodels:/modelstore/detection -v /deepstack/myfaces:/DeepStack/Faces --name DSfaces -p 82:5000 deepquestai/deepstack**
+
 
 Options are:
 
