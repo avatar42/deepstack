@@ -46,7 +46,7 @@ Edit vars at top of fullTest.py for the server info and the tests you want to ru
 
 It will exit with a message if/when an issue is found.
 
-Last tested on setup
+##Last tested on setup
 
 DeepStack: Version 2021.09.01
 
@@ -78,9 +78,9 @@ v1/vision/custom/openlogo
 
 /v1/restore (not tested yet)
 
-For further help [see this debug guide](https://securitycam101.rmrr42.com/2021/10/quick-blue-iris-with-deepstack-debug.html)
+#For further help/info [see this debug guide](https://securitycam101.rmrr42.com/2021/10/quick-blue-iris-with-deepstack-debug.html)
 
-Set these values as needed / to match your setup.
+#Set these values as needed / to match your setup.
 ```
 ## Where images to test with are located
 img_path = "./test.imgs/"
