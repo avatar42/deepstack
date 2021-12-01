@@ -1,0 +1,62 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.45626974, 
+            "y_min": 317, 
+            "y_max": 366, 
+            "label": "sheep", 
+            "x_max": 600, 
+            "x_min": 511
+        }, 
+        {
+            "confidence": 0.46683758, 
+            "y_min": 317, 
+            "y_max": 367, 
+            "label": "dog", 
+            "x_max": 600, 
+            "x_min": 512
+        }, 
+        {
+            "confidence": 0.49609908, 
+            "y_min": 341, 
+            "y_max": 427, 
+            "label": "bench", 
+            "x_max": 146, 
+            "x_min": 7
+        }, 
+        {
+            "confidence": 0.5530611, 
+            "y_min": 291, 
+            "y_max": 335, 
+            "label": "sheep", 
+            "x_max": 476, 
+            "x_min": 409
+        }, 
+        {
+            "confidence": 0.5551495, 
+            "y_min": 324, 
+            "y_max": 391, 
+            "label": "dog", 
+            "x_max": 363, 
+            "x_min": 289
+        }, 
+        {
+            "confidence": 0.6205256, 
+            "y_min": 279, 
+            "y_max": 319, 
+            "label": "bicycle", 
+            "x_max": 661, 
+            "x_min": 629
+        }, 
+        {
+            "confidence": 0.6822904, 
+            "y_min": 231, 
+            "y_max": 311, 
+            "label": "person", 
+            "x_max": 664, 
+            "x_min": 625
+        }
+    ], 
+    "success": true
+}

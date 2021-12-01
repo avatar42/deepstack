@@ -1,0 +1,46 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.48661497, 
+            "y_min": 126, 
+            "y_max": 186, 
+            "label": "Car", 
+            "x_max": 118, 
+            "x_min": 39
+        }, 
+        {
+            "confidence": 0.8672979, 
+            "y_min": 87, 
+            "y_max": 176, 
+            "label": "Car", 
+            "x_max": 578, 
+            "x_min": 416
+        }, 
+        {
+            "confidence": 0.87854856, 
+            "y_min": 77, 
+            "y_max": 212, 
+            "label": "Car", 
+            "x_max": 447, 
+            "x_min": 195
+        }, 
+        {
+            "confidence": 0.8818725, 
+            "y_min": 146, 
+            "y_max": 711, 
+            "label": "People", 
+            "x_max": 551, 
+            "x_min": 148
+        }, 
+        {
+            "confidence": 0.9243178, 
+            "y_min": 119, 
+            "y_max": 714, 
+            "label": "People", 
+            "x_max": 1079, 
+            "x_min": 668
+        }
+    ], 
+    "success": true
+}

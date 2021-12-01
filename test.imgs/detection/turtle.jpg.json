@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.43224904, 
+            "y_min": 801, 
+            "y_max": 1818, 
+            "label": "bird", 
+            "x_max": 2788, 
+            "x_min": 1239
+        }, 
+        {
+            "confidence": 0.5575387, 
+            "y_min": 801, 
+            "y_max": 1818, 
+            "label": "bottle", 
+            "x_max": 2788, 
+            "x_min": 1239
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.9450404, 
+            "y_min": 84, 
+            "y_max": 1318, 
+            "label": "cycling", 
+            "x_max": 1141, 
+            "x_min": 654
+        }
+    ], 
+    "success": true
+}

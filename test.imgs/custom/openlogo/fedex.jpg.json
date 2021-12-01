@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.8344116, 
+            "y_min": 135, 
+            "y_max": 183, 
+            "label": "fedex", 
+            "x_max": 525, 
+            "x_min": 387
+        }, 
+        {
+            "confidence": 0.8757273, 
+            "y_min": 137, 
+            "y_max": 227, 
+            "label": "fedex", 
+            "x_max": 351, 
+            "x_min": 278
+        }
+    ], 
+    "success": true
+}

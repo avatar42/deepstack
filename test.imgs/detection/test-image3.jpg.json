@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.90555805, 
+            "y_min": 346, 
+            "y_max": 541, 
+            "label": "dog", 
+            "x_max": 794, 
+            "x_min": 650
+        }, 
+        {
+            "confidence": 0.9240101, 
+            "y_min": 118, 
+            "y_max": 524, 
+            "label": "person", 
+            "x_max": 606, 
+            "x_min": 443
+        }, 
+        {
+            "confidence": 0.94986975, 
+            "y_min": 81, 
+            "y_max": 523, 
+            "label": "person", 
+            "x_max": 442, 
+            "x_min": 296
+        }
+    ], 
+    "success": true
+}

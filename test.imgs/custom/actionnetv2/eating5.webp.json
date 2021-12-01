@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.83227843, 
+            "y_min": 142, 
+            "y_max": 462, 
+            "label": "eating", 
+            "x_max": 350, 
+            "x_min": 128
+        }, 
+        {
+            "confidence": 0.84008753, 
+            "y_min": 48, 
+            "y_max": 369, 
+            "label": "eating", 
+            "x_max": 725, 
+            "x_min": 452
+        }, 
+        {
+            "confidence": 0.9169108, 
+            "y_min": 113, 
+            "y_max": 470, 
+            "label": "eating", 
+            "x_max": 522, 
+            "x_min": 272
+        }
+    ], 
+    "success": true
+}

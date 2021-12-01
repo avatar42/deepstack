@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.49094263, 
+            "y_min": 335, 
+            "y_max": 541, 
+            "label": "running", 
+            "x_max": 796, 
+            "x_min": 670
+        }, 
+        {
+            "confidence": 0.9252343, 
+            "y_min": 71, 
+            "y_max": 528, 
+            "label": "running", 
+            "x_max": 453, 
+            "x_min": 288
+        }, 
+        {
+            "confidence": 0.9329877, 
+            "y_min": 98, 
+            "y_max": 529, 
+            "label": "running", 
+            "x_max": 604, 
+            "x_min": 434
+        }
+    ], 
+    "success": true
+}

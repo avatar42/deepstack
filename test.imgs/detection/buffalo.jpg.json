@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.7334036, 
+            "y_min": 1196, 
+            "y_max": 1473, 
+            "label": "elephant", 
+            "x_max": 1554, 
+            "x_min": 1265
+        }, 
+        {
+            "confidence": 0.8045559, 
+            "y_min": 1203, 
+            "y_max": 1468, 
+            "label": "elephant", 
+            "x_max": 2301, 
+            "x_min": 1902
+        }, 
+        {
+            "confidence": 0.80751985, 
+            "y_min": 1184, 
+            "y_max": 1479, 
+            "label": "elephant", 
+            "x_max": 1926, 
+            "x_min": 1615
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.62303096, 
+            "y_min": 202, 
+            "y_max": 457, 
+            "label": "Chair", 
+            "x_max": 1262, 
+            "x_min": 1002
+        }, 
+        {
+            "confidence": 0.6541514, 
+            "y_min": 416, 
+            "y_max": 520, 
+            "label": "Dog", 
+            "x_max": 996, 
+            "x_min": 853
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.4292566, 
+            "y_min": 625, 
+            "y_max": 1077, 
+            "label": "refrigerator", 
+            "x_max": 1320, 
+            "x_min": 749
+        }
+    ], 
+    "success": true
+}

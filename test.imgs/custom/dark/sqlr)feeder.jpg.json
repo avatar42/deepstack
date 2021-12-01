@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.5464082, 
+            "y_min": 0, 
+            "y_max": 825, 
+            "label": "Bottle", 
+            "x_max": 817, 
+            "x_min": 555
+        }, 
+        {
+            "confidence": 0.8919899, 
+            "y_min": 672, 
+            "y_max": 1286, 
+            "label": "Table", 
+            "x_max": 919, 
+            "x_min": 373
+        }
+    ], 
+    "success": true
+}

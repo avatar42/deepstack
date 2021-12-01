@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.58731204, 
+            "y_min": 89, 
+            "y_max": 362, 
+            "label": "horse", 
+            "x_max": 502, 
+            "x_min": 97
+        }
+    ], 
+    "success": true
+}

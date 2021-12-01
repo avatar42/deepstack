@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.928677, 
+            "y_min": 1, 
+            "y_max": 279, 
+            "label": "laughing", 
+            "x_max": 193, 
+            "x_min": 1
+        }
+    ], 
+    "success": true
+}

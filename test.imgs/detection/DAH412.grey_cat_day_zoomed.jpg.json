@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.47768685, 
+            "y_min": 666, 
+            "y_max": 1241, 
+            "label": "horse", 
+            "x_max": 1551, 
+            "x_min": 244
+        }, 
+        {
+            "confidence": 0.51949245, 
+            "y_min": 668, 
+            "y_max": 1241, 
+            "label": "dog", 
+            "x_max": 1501, 
+            "x_min": 233
+        }, 
+        {
+            "confidence": 0.69605637, 
+            "y_min": 740, 
+            "y_max": 966, 
+            "label": "bowl", 
+            "x_max": 1727, 
+            "x_min": 1308
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.45766068, 
+            "y_min": 204, 
+            "y_max": 317, 
+            "label": "boat", 
+            "x_max": 616, 
+            "x_min": 320
+        }
+    ], 
+    "success": true
+}

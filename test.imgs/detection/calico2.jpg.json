@@ -1,0 +1,30 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.40854132, 
+            "y_min": 179, 
+            "y_max": 459, 
+            "label": "dining table", 
+            "x_max": 640, 
+            "x_min": 3
+        }, 
+        {
+            "confidence": 0.505947, 
+            "y_min": 194, 
+            "y_max": 267, 
+            "label": "bowl", 
+            "x_max": 410, 
+            "x_min": 301
+        }, 
+        {
+            "confidence": 0.7248569, 
+            "y_min": 133, 
+            "y_max": 268, 
+            "label": "cat", 
+            "x_max": 391, 
+            "x_min": 124
+        }
+    ], 
+    "success": true
+}

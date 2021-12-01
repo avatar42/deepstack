@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.9486187, 
+            "y_min": 338, 
+            "y_max": 981, 
+            "label": "car", 
+            "x_max": 1023, 
+            "x_min": 198
+        }
+    ], 
+    "success": true
+}

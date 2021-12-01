@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.69309235, 
+            "y_min": 110, 
+            "y_max": 250, 
+            "label": "volkswagen", 
+            "x_max": 924, 
+            "x_min": 743
+        }
+    ], 
+    "success": true
+}

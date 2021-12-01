@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.41794956, 
+            "y_min": 1778, 
+            "y_max": 3652, 
+            "label": "puma", 
+            "x_max": 2032, 
+            "x_min": 814
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.56019485, 
+            "y_min": 571, 
+            "y_max": 1122, 
+            "label": "cow", 
+            "x_max": 1486, 
+            "x_min": 899
+        }, 
+        {
+            "confidence": 0.79593456, 
+            "y_min": 885, 
+            "y_max": 1348, 
+            "label": "horse", 
+            "x_max": 791, 
+            "x_min": 332
+        }
+    ], 
+    "success": true
+}

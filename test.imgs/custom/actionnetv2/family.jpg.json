@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.6927991, 
+            "y_min": 132, 
+            "y_max": 539, 
+            "label": "hugging", 
+            "x_max": 699, 
+            "x_min": 377
+        }, 
+        {
+            "confidence": 0.7016728, 
+            "y_min": 99, 
+            "y_max": 539, 
+            "label": "hugging", 
+            "x_max": 935, 
+            "x_min": 595
+        }
+    ], 
+    "success": true
+}

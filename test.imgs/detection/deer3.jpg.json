@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.5345502, 
+            "y_min": 89, 
+            "y_max": 340, 
+            "label": "sheep", 
+            "x_max": 496, 
+            "x_min": 97
+        }
+    ], 
+    "success": true
+}

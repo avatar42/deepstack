@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.7561196, 
+            "y_min": 548, 
+            "y_max": 1267, 
+            "label": "bird", 
+            "x_max": 1322, 
+            "x_min": 832
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,38 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.77496964, 
+            "y_min": 109, 
+            "y_max": 295, 
+            "label": "person", 
+            "x_max": 380, 
+            "x_min": 312
+        }, 
+        {
+            "confidence": 0.86935717, 
+            "y_min": 173, 
+            "y_max": 331, 
+            "label": "car", 
+            "x_max": 615, 
+            "x_min": 359
+        }, 
+        {
+            "confidence": 0.893386, 
+            "y_min": 14, 
+            "y_max": 160, 
+            "label": "person", 
+            "x_max": 450, 
+            "x_min": 384
+        }, 
+        {
+            "confidence": 0.9044452, 
+            "y_min": 106, 
+            "y_max": 299, 
+            "label": "person", 
+            "x_max": 357, 
+            "x_min": 196
+        }
+    ], 
+    "success": true
+}

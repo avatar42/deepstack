@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.61721885, 
+            "y_min": 210, 
+            "y_max": 474, 
+            "label": "fighting", 
+            "x_max": 768, 
+            "x_min": 449
+        }, 
+        {
+            "confidence": 0.7854344, 
+            "y_min": 207, 
+            "y_max": 479, 
+            "label": "sleeping", 
+            "x_max": 765, 
+            "x_min": 449
+        }
+    ], 
+    "success": true
+}

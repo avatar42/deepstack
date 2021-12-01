@@ -1,0 +1,46 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.7351544, 
+            "y_min": 226, 
+            "y_max": 311, 
+            "label": "People", 
+            "x_max": 669, 
+            "x_min": 617
+        }, 
+        {
+            "confidence": 0.784255, 
+            "y_min": 288, 
+            "y_max": 354, 
+            "label": "Dog", 
+            "x_max": 326, 
+            "x_min": 253
+        }, 
+        {
+            "confidence": 0.8612013, 
+            "y_min": 284, 
+            "y_max": 341, 
+            "label": "Dog", 
+            "x_max": 485, 
+            "x_min": 401
+        }, 
+        {
+            "confidence": 0.8833218, 
+            "y_min": 309, 
+            "y_max": 371, 
+            "label": "Dog", 
+            "x_max": 608, 
+            "x_min": 509
+        }, 
+        {
+            "confidence": 0.8876645, 
+            "y_min": 317, 
+            "y_max": 395, 
+            "label": "Dog", 
+            "x_max": 369, 
+            "x_min": 281
+        }
+    ], 
+    "success": true
+}

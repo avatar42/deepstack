@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.53388005, 
+            "y_min": 222, 
+            "y_max": 320, 
+            "label": "licence-plate", 
+            "x_max": 151, 
+            "x_min": 8
+        }
+    ], 
+    "success": true
+}

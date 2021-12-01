@@ -1,0 +1,46 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.41364557, 
+            "y_min": 83, 
+            "y_max": 115, 
+            "label": "car", 
+            "x_max": 715, 
+            "x_min": 658
+        }, 
+        {
+            "confidence": 0.63559324, 
+            "y_min": 82, 
+            "y_max": 207, 
+            "label": "truck", 
+            "x_max": 482, 
+            "x_min": 203
+        }, 
+        {
+            "confidence": 0.71442187, 
+            "y_min": 134, 
+            "y_max": 184, 
+            "label": "car", 
+            "x_max": 111, 
+            "x_min": 36
+        }, 
+        {
+            "confidence": 0.9332667, 
+            "y_min": 161, 
+            "y_max": 717, 
+            "label": "person", 
+            "x_max": 708, 
+            "x_min": 148
+        }, 
+        {
+            "confidence": 0.93338007, 
+            "y_min": 123, 
+            "y_max": 718, 
+            "label": "person", 
+            "x_max": 1064, 
+            "x_min": 693
+        }
+    ], 
+    "success": true
+}

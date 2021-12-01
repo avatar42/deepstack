@@ -1,0 +1,38 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.4123006, 
+            "y_min": 959, 
+            "y_max": 1585, 
+            "label": "horse", 
+            "x_max": 3646, 
+            "x_min": 2915
+        }, 
+        {
+            "confidence": 0.41810757, 
+            "y_min": 1064, 
+            "y_max": 2141, 
+            "label": "sheep", 
+            "x_max": 3092, 
+            "x_min": 2162
+        }, 
+        {
+            "confidence": 0.43459255, 
+            "y_min": 1060, 
+            "y_max": 2138, 
+            "label": "cow", 
+            "x_max": 3098, 
+            "x_min": 2153
+        }, 
+        {
+            "confidence": 0.46104753, 
+            "y_min": 958, 
+            "y_max": 1591, 
+            "label": "sheep", 
+            "x_max": 3646, 
+            "x_min": 2918
+        }
+    ], 
+    "success": true
+}

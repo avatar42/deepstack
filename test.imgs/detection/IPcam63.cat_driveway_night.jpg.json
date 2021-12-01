@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.8071558, 
+            "y_min": 654, 
+            "y_max": 828, 
+            "label": "dog", 
+            "x_max": 996, 
+            "x_min": 759
+        }
+    ], 
+    "success": true
+}

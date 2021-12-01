@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.677244, 
+            "y_min": 321, 
+            "y_max": 566, 
+            "label": "citi", 
+            "x_max": 1600, 
+            "x_min": 1310
+        }
+    ], 
+    "success": true
+}

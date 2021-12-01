@@ -1,0 +1,38 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.72542346, 
+            "y_min": 195, 
+            "y_max": 353, 
+            "label": "Chair", 
+            "x_max": 277, 
+            "x_min": 0
+        }, 
+        {
+            "confidence": 0.8485859, 
+            "y_min": 205, 
+            "y_max": 452, 
+            "label": "Chair", 
+            "x_max": 834, 
+            "x_min": 602
+        }, 
+        {
+            "confidence": 0.8626343, 
+            "y_min": 179, 
+            "y_max": 589, 
+            "label": "Chair", 
+            "x_max": 960, 
+            "x_min": 668
+        }, 
+        {
+            "confidence": 0.9131514, 
+            "y_min": 274, 
+            "y_max": 632, 
+            "label": "Table", 
+            "x_max": 682, 
+            "x_min": 1
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.62643397, 
+            "y_min": 65, 
+            "y_max": 234, 
+            "label": "Chair", 
+            "x_max": 133, 
+            "x_min": 0
+        }
+    ], 
+    "success": true
+}

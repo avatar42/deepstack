@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.68266517, 
+            "y_min": 3, 
+            "y_max": 360, 
+            "label": "calling", 
+            "x_max": 428, 
+            "x_min": 10
+        }
+    ], 
+    "success": true
+}

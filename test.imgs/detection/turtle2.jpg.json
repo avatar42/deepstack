@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.6941578, 
+            "y_min": 1036, 
+            "y_max": 2879, 
+            "label": "vase", 
+            "x_max": 1478, 
+            "x_min": 265
+        }
+    ], 
+    "success": true
+}

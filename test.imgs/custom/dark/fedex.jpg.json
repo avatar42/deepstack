@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.49621582, 
+            "y_min": 71, 
+            "y_max": 376, 
+            "label": "Bus", 
+            "x_max": 561, 
+            "x_min": 237
+        }, 
+        {
+            "confidence": 0.76993287, 
+            "y_min": 69, 
+            "y_max": 376, 
+            "label": "Car", 
+            "x_max": 562, 
+            "x_min": 235
+        }
+    ], 
+    "success": true
+}

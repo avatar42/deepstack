@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.5028845, 
+            "y_min": 134, 
+            "y_max": 337, 
+            "label": "bird", 
+            "x_max": 428, 
+            "x_min": 177
+        }, 
+        {
+            "confidence": 0.5336403, 
+            "y_min": 202, 
+            "y_max": 326, 
+            "label": "bowl", 
+            "x_max": 613, 
+            "x_min": 344
+        }
+    ], 
+    "success": true
+}

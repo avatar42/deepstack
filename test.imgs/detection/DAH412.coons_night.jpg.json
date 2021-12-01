@@ -1,0 +1,38 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.41296065, 
+            "y_min": 775, 
+            "y_max": 1034, 
+            "label": "person", 
+            "x_max": 1225, 
+            "x_min": 840
+        }, 
+        {
+            "confidence": 0.5356133, 
+            "y_min": 341, 
+            "y_max": 1023, 
+            "label": "person", 
+            "x_max": 1683, 
+            "x_min": 1187
+        }, 
+        {
+            "confidence": 0.5434596, 
+            "y_min": 357, 
+            "y_max": 795, 
+            "label": "person", 
+            "x_max": 1208, 
+            "x_min": 918
+        }, 
+        {
+            "confidence": 0.6526147, 
+            "y_min": 594, 
+            "y_max": 879, 
+            "label": "person", 
+            "x_max": 796, 
+            "x_min": 605
+        }
+    ], 
+    "success": true
+}

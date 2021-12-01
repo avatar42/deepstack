@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.45892748, 
+            "y_min": 195, 
+            "y_max": 320, 
+            "label": "bowl", 
+            "x_max": 612, 
+            "x_min": 317
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.75201076, 
+            "y_min": 83, 
+            "y_max": 363, 
+            "label": "truck", 
+            "x_max": 558, 
+            "x_min": 240
+        }
+    ], 
+    "success": true
+}

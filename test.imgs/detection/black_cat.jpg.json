@@ -1,0 +1,38 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.556001, 
+            "y_min": 1178, 
+            "y_max": 2106, 
+            "label": "potted plant", 
+            "x_max": 1038, 
+            "x_min": 10
+        }, 
+        {
+            "confidence": 0.6837254, 
+            "y_min": 1517, 
+            "y_max": 2891, 
+            "label": "potted plant", 
+            "x_max": 441, 
+            "x_min": 0
+        }, 
+        {
+            "confidence": 0.81630695, 
+            "y_min": 1645, 
+            "y_max": 2678, 
+            "label": "potted plant", 
+            "x_max": 1354, 
+            "x_min": 452
+        }, 
+        {
+            "confidence": 0.88851535, 
+            "y_min": 1404, 
+            "y_max": 2098, 
+            "label": "cat", 
+            "x_max": 2667, 
+            "x_min": 1394
+        }
+    ], 
+    "success": true
+}

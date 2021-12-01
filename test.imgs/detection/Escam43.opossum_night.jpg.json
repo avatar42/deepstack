@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.7064422, 
+            "y_min": 456, 
+            "y_max": 910, 
+            "label": "toilet", 
+            "x_max": 1308, 
+            "x_min": 832
+        }
+    ], 
+    "success": true
+}

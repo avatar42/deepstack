@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.9434618, 
+            "y_min": 25, 
+            "y_max": 478, 
+            "label": "dancing", 
+            "x_max": 518, 
+            "x_min": 271
+        }
+    ], 
+    "success": true
+}

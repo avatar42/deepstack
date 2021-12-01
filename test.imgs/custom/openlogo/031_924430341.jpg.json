@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.67737615, 
+            "y_min": 770, 
+            "y_max": 808, 
+            "label": "toyota", 
+            "x_max": 638, 
+            "x_min": 586
+        }
+    ], 
+    "success": true
+}

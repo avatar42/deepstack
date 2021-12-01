@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.4244202, 
+            "y_min": 98, 
+            "y_max": 2597, 
+            "label": "apple", 
+            "x_max": 3421, 
+            "x_min": 1114
+        }
+    ], 
+    "success": true
+}

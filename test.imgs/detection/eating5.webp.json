@@ -1,0 +1,94 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.4106363, 
+            "y_min": 269, 
+            "y_max": 302, 
+            "label": "pizza", 
+            "x_max": 337, 
+            "x_min": 260
+        }, 
+        {
+            "confidence": 0.42401505, 
+            "y_min": 180, 
+            "y_max": 233, 
+            "label": "person", 
+            "x_max": 458, 
+            "x_min": 429
+        }, 
+        {
+            "confidence": 0.49906486, 
+            "y_min": 282, 
+            "y_max": 493, 
+            "label": "handbag", 
+            "x_max": 228, 
+            "x_min": 60
+        }, 
+        {
+            "confidence": 0.58831644, 
+            "y_min": 292, 
+            "y_max": 490, 
+            "label": "backpack", 
+            "x_max": 224, 
+            "x_min": 58
+        }, 
+        {
+            "confidence": 0.6252384, 
+            "y_min": 219, 
+            "y_max": 311, 
+            "label": "handbag", 
+            "x_max": 109, 
+            "x_min": 42
+        }, 
+        {
+            "confidence": 0.6292055, 
+            "y_min": 270, 
+            "y_max": 304, 
+            "label": "banana", 
+            "x_max": 336, 
+            "x_min": 257
+        }, 
+        {
+            "confidence": 0.8229767, 
+            "y_min": 166, 
+            "y_max": 486, 
+            "label": "person", 
+            "x_max": 147, 
+            "x_min": 13
+        }, 
+        {
+            "confidence": 0.8391072, 
+            "y_min": 172, 
+            "y_max": 240, 
+            "label": "pizza", 
+            "x_max": 559, 
+            "x_min": 460
+        }, 
+        {
+            "confidence": 0.8840032, 
+            "y_min": 147, 
+            "y_max": 486, 
+            "label": "person", 
+            "x_max": 341, 
+            "x_min": 133
+        }, 
+        {
+            "confidence": 0.9022335, 
+            "y_min": 119, 
+            "y_max": 486, 
+            "label": "person", 
+            "x_max": 524, 
+            "x_min": 297
+        }, 
+        {
+            "confidence": 0.90593076, 
+            "y_min": 55, 
+            "y_max": 489, 
+            "label": "person", 
+            "x_max": 738, 
+            "x_min": 479
+        }
+    ], 
+    "success": true
+}

@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.44243407, 
+            "y_min": 2, 
+            "y_max": 699, 
+            "label": "calling", 
+            "x_max": 1114, 
+            "x_min": 491
+        }, 
+        {
+            "confidence": 0.47103354, 
+            "y_min": 2, 
+            "y_max": 553, 
+            "label": "laughing", 
+            "x_max": 1034, 
+            "x_min": 569
+        }
+    ], 
+    "success": true
+}

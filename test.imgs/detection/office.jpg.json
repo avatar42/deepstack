@@ -1,0 +1,70 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.46460226, 
+            "y_min": 182, 
+            "y_max": 461, 
+            "label": "chair", 
+            "x_max": 959, 
+            "x_min": 688
+        }, 
+        {
+            "confidence": 0.4758558, 
+            "y_min": 407, 
+            "y_max": 632, 
+            "label": "chair", 
+            "x_max": 960, 
+            "x_min": 512
+        }, 
+        {
+            "confidence": 0.6600091, 
+            "y_min": 225, 
+            "y_max": 308, 
+            "label": "chair", 
+            "x_max": 297, 
+            "x_min": 236
+        }, 
+        {
+            "confidence": 0.7153677, 
+            "y_min": 212, 
+            "y_max": 405, 
+            "label": "chair", 
+            "x_max": 830, 
+            "x_min": 650
+        }, 
+        {
+            "confidence": 0.7517677, 
+            "y_min": 224, 
+            "y_max": 290, 
+            "label": "chair", 
+            "x_max": 602, 
+            "x_min": 496
+        }, 
+        {
+            "confidence": 0.76500535, 
+            "y_min": 302, 
+            "y_max": 622, 
+            "label": "dining table", 
+            "x_max": 681, 
+            "x_min": 0
+        }, 
+        {
+            "confidence": 0.8412765, 
+            "y_min": 204, 
+            "y_max": 331, 
+            "label": "chair", 
+            "x_max": 156, 
+            "x_min": 0
+        }, 
+        {
+            "confidence": 0.9074068, 
+            "y_min": 194, 
+            "y_max": 402, 
+            "label": "laptop", 
+            "x_max": 604, 
+            "x_min": 306
+        }
+    ], 
+    "success": true
+}

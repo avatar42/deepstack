@@ -1,0 +1,22 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.8999886, 
+            "y_min": 1917, 
+            "y_max": 3503, 
+            "label": "cat", 
+            "x_max": 2070, 
+            "x_min": 768
+        }, 
+        {
+            "confidence": 0.90316063, 
+            "y_min": 488, 
+            "y_max": 1313, 
+            "label": "cat", 
+            "x_max": 2556, 
+            "x_min": 1221
+        }
+    ], 
+    "success": true
+}

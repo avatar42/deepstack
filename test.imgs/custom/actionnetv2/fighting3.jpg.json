@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.9407012, 
+            "y_min": 107, 
+            "y_max": 720, 
+            "label": "fighting", 
+            "x_max": 1083, 
+            "x_min": 135
+        }
+    ], 
+    "success": true
+}

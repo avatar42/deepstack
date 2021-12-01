@@ -1,0 +1,14 @@
+{
+    "duration": 0, 
+    "predictions": [
+        {
+            "confidence": 0.67693686, 
+            "y_min": 1331, 
+            "y_max": 1467, 
+            "label": "bmw", 
+            "x_max": 1870, 
+            "x_min": 1586
+        }
+    ], 
+    "success": true
+}
