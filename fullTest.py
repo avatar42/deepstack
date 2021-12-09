@@ -48,10 +48,10 @@ trainedName = "RMRR"
 # # new line used in the data files in trainData folder
 ln = '\r\n'
 
-# Output debug info Y,N
+# # Output debug info Y,N
 debugPrintOn = "N"
 
-# Y=Fail on error, N=Just warn on error
+# # Y=Fail on error, N=Just warn on error
 failOnError = "Y"
 # Images suffixes to use for image tests
 includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
@@ -562,7 +562,7 @@ def trainTests():
             if not chkArray(foundItems, expected, "custom/" + trainedName, trainPath + f) == 0:
                 i = 0
                 for item in response["predictions"]:
-                    saveFound(item, trainPath + f, debugPath + f + "." + item["label"] + "." + str(i)+ "." + str(item["confidence"]) + ".jpg")
+                    saveFound(item, trainPath + f, debugPath + f + "." + item["label"] + "." + str(i) + "." + str(item["confidence"]) + ".jpg")
                     i += 1
 
         else:
