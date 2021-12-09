@@ -1,0 +1,4 @@
+pig
+raccoon
+coyote
+squirrel

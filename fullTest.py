@@ -6,12 +6,17 @@ import shutil
 import zipfile
 from PIL import Image
 from datetime import datetime
+from Cheetah.Templates._SkeletonPage import True
 
-# # Note tested with Python 2.7
+# # Note tested with Python 2.7 on CentoOS Linux
 # # Where images to test with are located
-img_path = "./test.imgs/"
+imgPath = "./test.imgs/"
+# # Where to save debug images of from tests 
+debugPath = "./debug.pics/"
+# # if Y saves debug images to compare between expected and found objects for mismatches.
+saveDebugPics = "Y"
 # # Base URL of your DeepStack server
-ds_url = "http://localhost:82/"
+dsUrl = "http://localhost:82/"
 # # DeepStack started with -e MODE=Medium or -e MODE=High
 mode = "Medium" 
 # Test control flags. Set to N to skip test.
@@ -23,7 +28,7 @@ doScene = "Y"
 doObj = "Y"
 # # Run backup tests
 doBackup = "Y"
-# # Run all pics in the img_path thru enabled (see custom models) object detection tests and compare with a base run.
+# # Run all pics in the imgPath thru enabled (see custom models) object detection tests and compare with a base run.
 doExt = "Y"
 
 # Custom models
@@ -35,12 +40,21 @@ doPlate = "Y"
 doDark = "Y"
 # # Run tests for [actionnet custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
 doAction = "Y"
+# # Run tests for trained model.
+doTrained = "Y"
+# # Name of trained set model. Usually the same as the name of the pt file.
+# # RMRR is mine from the data in the checked in trainData folder. If you train your own replace the train folder in trainData with your own. 
+trainedName = "RMRR" 
+# # new line used in the data files in trainData folder
+ln = '\r\n'
 
 # Output debug info Y,N
 debugPrintOn = "N"
 
 # Y=Fail on error, N=Just warn on error
 failOnError = "Y"
+# Images suffixes to use for image tests
+includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
 
 testsRan = 0
 testsSkipped = 0
@@ -52,6 +66,7 @@ startCnt = 0
 startTime = datetime.now()
 
 
+# # if debugPrintOn == "N" prints a '.' wrapped at 80 columns
 def progressPrint():
     global progressCnt
 
@@ -62,7 +77,8 @@ def progressPrint():
     else:
         sys.stdout.write('.')
 
-        
+
+# # log tests as skipped        
 def skipped(msg, skipped):
     global testsSkipped
     
@@ -70,27 +86,33 @@ def skipped(msg, skipped):
     dprint("Skipped " + str(skipped) + " " + msg)
 
 
+# # if debugPrintOn == "Y" adds new line to log so progress dots do not make messages appear off screen 
+def addNL():
+    global progressCnt
+
+    if progressCnt > 0:
+        print("")
+        progressCnt = 0
+
+
+# # if debugPrintOn == "Y" prints PASSED: msg otherwise a '.'
 def passed(msg):
     global testsPassed
-    global progressCnt
     
     testsPassed += 1
     if debugPrintOn == "Y":
-        if progressCnt > 0:
-            print("")
-            progressCnt = 0
+        addNL()
         print("PASSED:" + str(msg))
     else:
         progressPrint()
 
 
+# # if failOnError == "Y" ends testing with message
+# # if failOnError == "N" calls warn with msg
 def fail(msg):
     global testsFailed
-    global progressCnt
     
-    if progressCnt > 0:
-        print("")
-        progressCnt = 0
+    addNL()
     testsFailed += 1
     if failOnError == "Y":
         raise ValueError("FAILED:" + msg)
@@ -98,13 +120,17 @@ def fail(msg):
         warn("FAILED:" + msg)
 
 
+# # write msg to stderr
 def warn(msg):
     global testsWarned
     
+    addNL()    
     testsWarned += 1
     sys.stderr.write("WARN:" + msg + "\n")
 
 
+# # if test is true call passed
+# # if test is false call fail
 def assertTrue(msg, test):
     global testsRan
     testsRan += 1
@@ -114,6 +140,8 @@ def assertTrue(msg, test):
         fail(msg)
 
 
+# # if test is true call passed
+# # if test is false call warn
 def warnTrue(msg, test):
     global testsRan
     testsRan += 1
@@ -134,7 +162,8 @@ def dprint(msg):
 
         print(msg)
 
-    
+
+# # intialize vars for test counting and timing    
 def logStart():
     global startCnt
     global startTime
@@ -144,14 +173,17 @@ def logStart():
     startTime = datetime.now()
 
 
-def logEnd(test_type):
+# # output info about the test set just run
+def logEnd(testType):
     global startCnt
     global startTime
     global testsRan
 
-    print("\nRan " + str(testsRan - startCnt) + " " + test_type + " tests in " + str(datetime.now() - startTime))
+    print("\nRan " + str(testsRan - startCnt) + " " + testType + " tests in " + str(datetime.now() - startTime))
 
 
+# # if test is true run method
+# # if test is false add tests to skip count.
 def logit(test, method, msg, skipCnt):
     if test: 
         method()
@@ -159,7 +191,8 @@ def logit(test, method, msg, skipCnt):
         skipped(msg, skipCnt)
 
 
-def doPost(test_type, data=None, **kwargs):
+# # send a command to DeepStack
+def doPost(testType, data=None, **kwargs):
     """Sends a POST request, gets clean response and checks it for success
 
     :param url: URL for the new :class:`Request` object.
@@ -168,8 +201,8 @@ def doPost(test_type, data=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-    response = requests.post(ds_url + "v1/vision/" + test_type, data=data, **kwargs)
-    assertTrue(ds_url + "v1/vision/" + test_type + " returned " + str(response.status_code),
+    response = requests.post(dsUrl + "v1/vision/" + testType, data=data, **kwargs)
+    assertTrue(dsUrl + "v1/vision/" + testType + " returned " + str(response.status_code),
                response.status_code == 200)
     if response.status_code == 200:
         jres = response.json()
@@ -184,26 +217,32 @@ def doPost(test_type, data=None, **kwargs):
 
 
 # read in binary file and return
-def read_binary(file_name):
+def readImageFile(fileName):
+    return readBinaryFile(imgPath + fileName)
+
+
+# read in binary file and return
+def readBinaryFile(filePath):
     global testsRan
     
     testsRan += 1
     # with closes on section exit
-    with open(img_path + file_name, "rb") as f:
+    with open(filePath, "rb") as f:
         if f.mode == "rb":
             data = f.read()
-            passed("Reading " + img_path + file_name)
+            passed("Reading " + filePath)
             return data
         else:
-            fail("could not read " + img_path + file_name)
+            fail("could not read " + filePath)
 
 
 # register face for test.
-def register_face(file_name, user_id):
-    doPost("face/register", files={"image":read_binary(file_name)}, data={"userid":user_id})
+def registerFace(fileName, userId):
+    doPost("face/register", files={"image":readImageFile(fileName)}, data={"userid":userId})
 
 
-def chkArray(foundItems, expected, test_type, file_name):
+# # expected items are in foundItems
+def chkArray(foundItems, expected, testType, fileName):
     global testsRan
     dprint(foundItems)
 
@@ -211,30 +250,33 @@ def chkArray(foundItems, expected, test_type, file_name):
              +" objects " + str(foundItems), len(foundItems) == len(expected))
     # check what we expect is there. Note other things might be found but here we only care about the expected
     for item in expected:
-        assertTrue(item + " in " + test_type + " test image:" + file_name, item in foundItems)
+        assertTrue(item + " in " + testType + " test image:" + fileName, item in foundItems)
         # remove in case we are checking for more than one of a type
         if item in foundItems:
             foundItems.remove(item)
 
+    return len(foundItems) 
 
-def detect_test(test_type, file_name, expected):
+
+# # Compare objects found in image against expected ones
+def detectTest(testType, fileName, expected):
     global testsRan
     
-    dprint("Testing " + test_type + "-" + file_name)
-    response = doPost(test_type, files={"image":read_binary(file_name)})
+    dprint("Testing " + testType + "-" + fileName)
+    response = doPost(testType, files={"image":readImageFile(fileName)})
 
-    if "face" == test_type:
+    if "face" == testType:
         assertTrue("Of " + str(expected) + " expected found faces, found:" + str(len(response["predictions"])),
                    expected == len(response["predictions"]))
-    elif "scene" == test_type:
+    elif "scene" == testType:
         assertTrue(str(expected) + " scene expected, found:" + str(response["label"]),
                    expected == response["label"])
     else:
         # no compare data so warn and create from this response
         if len(expected) == 1 and expected[0] == "undefined":
             testsRan += 1
-            warn("No data for " + img_path + file_name + " initializing for next run of Extra tests for " + test_type)
-            writeTestData(test_type, file_name, response)
+            warn("No data for " + imgPath + fileName + " initializing for next run of Extra tests for " + testType)
+            writeTestData(testType, fileName, response)
         else:
             foundItems = []
             i = 0
@@ -242,13 +284,13 @@ def detect_test(test_type, file_name, expected):
                 foundItems.insert(i, item["label"])
                 i += 1
                 
-            chkArray(foundItems, expected, test_type, file_name)
+            chkArray(foundItems, expected, testType, fileName)
 
 
-# read expected response for test image run against test_type
-def getExpected(test_type, file_name):
+# # read expected response for test image run against testType
+def getExpected(testType, fileName):
     expected = []
-    path = img_path + test_type + "/" + file_name + '.json'
+    path = imgPath + testType + "/" + fileName + '.json'
     if os.path.exists(path):
         jfile = open(path)
         data = json.load(jfile)
@@ -264,48 +306,51 @@ def getExpected(test_type, file_name):
     return expected
 
 
-def writeTestData(test_type, file_name, response): 
-    path = img_path + test_type + "/"
+# # Write found data. Used to create compare file for new images.
+def writeTestData(testType, fileName, response): 
+    path = imgPath + testType + "/"
     if not os.path.isdir(path):
         os.makedirs(path)
-    with open(path + file_name + ".json", "wb") as f:
+    with open(path + fileName + ".json", "wb") as f:
         if f.mode == "wb":
             f.write(json.dumps(response, indent=4))
 
 
+# # Quick test that the server is up.
 def serverUpTest():
     logStart()
     # # quick test the see server is up
-    response = requests.get(ds_url)
+    response = requests.get(dsUrl)
     assertTrue("DeepStack responding", response.status_code == 200)
     logEnd("server up")
 
 
+# # Run the face sample tests
 def faceTests():
     global testsRan
 
     logStart()
 # # face detect test
-    detect_test("face", "family.jpg", 4)
+    detectTest("face", "family.jpg", 4)
 
-    response = doPost("face/match", files={"image1":read_binary("obama1.jpg"),
-                                              "image2":read_binary("obama2.jpg")})
+    response = doPost("face/match", files={"image1":readImageFile("obama1.jpg"),
+                                              "image2":readImageFile("obama2.jpg")})
     assertTrue("Face match", response['similarity'] > 0.70)
     
-    response = doPost("face/match", files={"image1":read_binary("obama1.jpg"),
-                                              "image2":read_binary("brad.jpg")})
+    response = doPost("face/match", files={"image1":readImageFile("obama1.jpg"),
+                                              "image2":readImageFile("brad.jpg")})
     assertTrue("Face mismatch", response['similarity'] < 0.51)
 
     # # face recog test
-    register_face("tomcruise.jpg", "Tom Cruise")
-    register_face("adele.jpg", "Adele")
-    register_face("idriselba.jpg", "Idris Elba")
-    register_face("perri.jpg", "Christina Perri")
+    registerFace("tomcruise.jpg", "Tom Cruise")
+    registerFace("adele.jpg", "Adele")
+    registerFace("idriselba.jpg", "Idris Elba")
+    registerFace("perri.jpg", "Christina Perri")
 
     response = doPost("face/list")
     chkArray(response["faces"], ["Tom Cruise", "Adele", "Idris Elba", "Christina Perri"], "face/list", "db")
     
-    res = doPost("face/recognize", files={"image":read_binary("adele2.jpg")})
+    res = doPost("face/recognize", files={"image":readImageFile("adele2.jpg")})
     
     i = 0
     for face in res["predictions"]:
@@ -313,7 +358,7 @@ def faceTests():
         dprint("Found " + found)
         testsRan += 1
         if found != "Adele":
-            image = Image.open(img_path + "adele2.jpg").convert("RGB")
+            image = Image.open(imgPath + "adele2.jpg").convert("RGB")
             y_max = int(face["y_max"])
             y_min = int(face["y_min"])
             x_max = int(face["x_max"])
@@ -326,79 +371,98 @@ def faceTests():
         i += 1
     logEnd("face")
 
-    
+
+# # Save the cropped image that was found by object detection.
+# # Mainly for checking extra objects found in tests. 
+def saveFound(item, imgPath, savePath):
+    image = Image.open(imgPath).convert("RGB")
+    y_max = int(item["y_max"])
+    y_min = int(item["y_min"])
+    x_max = int(item["x_max"])
+    x_min = int(item["x_min"])
+    cropped = image.crop((x_min, y_min, x_max, y_max))
+    cropped.save(savePath)
+
+
+# # Run some basic scene detection tests   
 def sceneTests():
-    test_type = "scene"
+    testType = "scene"
     logStart()
     # # Basic scene test
-    detect_test(test_type, "office.jpg", "conference_room")
-    detect_test(test_type, "DAH847_day.jpg", "yard")
-    detect_test(test_type, "DAH847_night.jpg", "driveway")  # this seems wrong
-    logEnd(test_type)
+    detectTest(testType, "office.jpg", "conference_room")
+    detectTest(testType, "DAH847_day.jpg", "yard")
+    detectTest(testType, "DAH847_night.jpg", "driveway")  # this seems wrong
+    logEnd(testType)
 
 
+# # Run some basic object detection tests
 def objTests():
-    test_type = "detection"
+    testType = "detection"
     logStart()
     # # Basic Object test
-#    detect_test(test_type, "test-image3.jpg", ["handbag", "person", "dog", "person"])
-    detect_test(test_type, "test-image3.jpg", ["person", "dog", "person"])
-    detect_test(test_type, "fedex.jpg", ["truck"])
-    logEnd(test_type)
+#    detectTest(testType, "test-image3.jpg", ["handbag", "person", "dog", "person"])
+    detectTest(testType, "test-image3.jpg", ["person", "dog", "person"])
+    detectTest(testType, "fedex.jpg", ["truck"])
+    logEnd(testType)
 
-    
+
+# # Run that openlogo models sample test    
 def logoTests():
-    test_type = "custom/openlogo"
+    testType = "custom/openlogo"
     logStart()
-    detect_test(test_type, "fedex.jpg", ["fedex", "fedex"])
-    logEnd(test_type)
+    detectTest(testType, "fedex.jpg", ["fedex", "fedex"])
+    logEnd(testType)
 
 
+# # Run that licence-plate model sample test
 def plateTests():
-    test_type = "custom/licence-plate"
+    testType = "custom/licence-plate"
     logStart()
     # test image of his
-    detect_test(test_type, "031_924430341.jpg", ["licence-plate"])
+    detectTest(testType, "031_924430341.jpg", ["licence-plate"])
     # test image of US TX plate not working
-    # detect_test(test_type, "back_plate_day.jpg", ["licence-plate"])
-    logEnd(test_type)
+    # detectTest(testType, "back_plate_day.jpg", ["licence-plate"])
+    logEnd(testType)
 
-    
+
+# # Run that dark model sample tests   
 def darkTests():
-    test_type = "custom/dark"
+    testType = "custom/dark"
     logStart()
     if mode == "Medium":
-        detect_test(test_type, "dark_image.jpg", ["People", "Dog", "Dog", "Dog", "Dog"])
+        detectTest(testType, "dark_image.jpg", ["People", "Dog", "Dog", "Dog", "Dog"])
     elif mode == "High":
-        detect_test(test_type, "dark_image.jpg", ["Motorbike", "People", "Dog", "Dog", "Dog", "Dog", "Dog"])
-    logEnd(test_type)
+        detectTest(testType, "dark_image.jpg", ["Motorbike", "People", "Dog", "Dog", "Dog", "Dog", "Dog"])
+    logEnd(testType)
 
 
+# # Run that actionnetv2 model sample tests
 def actionTests():
-    test_type = "custom/actionnetv2"
+    testType = "custom/actionnetv2"
     logStart()
-    detect_test(test_type, "dancing1.jpg", ["dancing"])
-    detect_test(test_type, "fighting2.jpg", ["dancing"])  # does not seem to work
-    detect_test(test_type, "fighting3.jpg", ["fighting"])
-    detect_test(test_type, "cycling4.jpg", ["cycling"])
-    detect_test(test_type, "eating5.webp", ["eating", "eating", "eating"])
-    logEnd(test_type)
+    detectTest(testType, "dancing1.jpg", ["dancing"])
+    detectTest(testType, "fighting2.jpg", ["dancing"])  # does not seem to work
+    detectTest(testType, "fighting3.jpg", ["fighting"])
+    detectTest(testType, "cycling4.jpg", ["cycling"])
+    detectTest(testType, "eating5.webp", ["eating", "eating", "eating"])
+    logEnd(testType)
 
 
+# # Try using the SDK to back up DeepStack setup
 def backupTests():
     global testsRan
 
-    test_type = "backup"
-    zip_file = "backupdeepstack.zip"
+    testType = "backup"
+    zipFile = "backupdeepstack.zip"
     logStart()
-    data = requests.post(ds_url + "v1/backup", stream=True)
-    with open(zip_file, "wb") as f:
+    data = requests.post(dsUrl + "v1/backup", stream=True)
+    with open(zipFile, "wb") as f:
         shutil.copyfileobj(data.raw, f)
         
-    dprint("Testing zip file: %s" % zip_file)
+    dprint("Testing zip file: %s" % zipFile)
 
-    the_zip_file = zipfile.ZipFile(zip_file)
-    ret = the_zip_file.testzip()
+    tstZipFile = zipfile.ZipFile(zipFile)
+    ret = tstZipFile.testzip()
 
     testsRan += 1
     if ret is not None:
@@ -406,14 +470,15 @@ def backupTests():
     else:
         passed("Zip file is good.")
         
-    logEnd(test_type)
+    logEnd(testType)
 
 
+# # run all the images in imgPath against all the enabled object detection models
 def extTests():
+    global includedExts
     # # run a bunch of my test images through object detection
-    included_extensions = ['jpg', 'webp', 'bmp', 'png', 'gif']
-    file_names = [fn for fn in os.listdir(img_path)
-        if any(fn.endswith(ext) for ext in included_extensions)]
+    fileNames = [fn for fn in os.listdir(imgPath)
+        if any(fn.endswith(ext) for ext in includedExts)]
     
     tests2Run = ["detection"]
 
@@ -437,19 +502,83 @@ def extTests():
     else:
         skipped("Extra actionnetv2 detect object tests", 516) 
 
-    for test_type in tests2Run:
+    for testType in tests2Run:
         logStart()
-        for f in file_names:
-            dprint("Checking:" + img_path + f)
-            detect_test(test_type, f, getExpected(test_type, f))    
-        logEnd(test_type)
+        for f in fileNames:
+            dprint("Checking:" + imgPath + f)
+            detectTest(testType, f, getExpected(testType, f))    
+        logEnd(testType)
 
 
+# # remove all the old debug files in debugPath
+def clearDebugPics():
+    imgNames = [fn for fn in os.listdir(debugPath)
+    if any(fn.endswith(ext) for ext in includedExts)]
+    
+    for f in imgNames:
+        os.remove(debugPath + f)
+
+
+# # run tests for the trained custom model
+def trainTests():
+    global failOnError
+    global testsRan
+    global includedExts
+    
+#    hold = failOnError
+#    failOnError = "N"
+    trainPath = "trainData/train/"
+    logStart()
+    classes = readBinaryFile(trainPath + "classes.txt").split(ln)
+    dprint(classes)
+    
+    imgNames = [fn for fn in os.listdir(trainPath)
+        if any(fn.endswith(ext) for ext in includedExts)]
+
+    for f in imgNames:
+        dprint("Checking:" + trainPath + f)
+        idx = f.rfind('.')
+        expf = f[0:idx] + ".txt"
+        if os.path.exists(trainPath + expf):
+            dprint("against:" + trainPath + expf)      
+            data = readBinaryFile(trainPath + expf).split(ln)
+            dprint(data)
+            expected = []
+            for line in data:
+                idx = line.find(' ')
+                c = int(line[0:idx])
+                expected.append(classes[c])
+
+            dprint(expected)
+    
+            dprint("Testing " + trainedName + "-" + trainPath + f)
+            response = doPost("custom/" + trainedName, files={"image":readBinaryFile(trainPath + f)})
+            foundItems = []
+            i = 0
+            for item in response["predictions"]:
+                foundItems.insert(i, item["label"])
+                i += 1
+                
+            if not chkArray(foundItems, expected, "custom/" + trainedName, trainPath + f) == 0:
+                i = 0
+                for item in response["predictions"]:
+                    saveFound(item, trainPath + f, debugPath + f + "." + item["label"] + "." + str(i)+ "." + str(item["confidence"]) + ".jpg")
+                    i += 1
+
+        else:
+            warn("Missing label file " + trainPath + expf + ", skipping ")
+
+    logEnd(trainedName)
+    print("Check images in " + debugPath + " match the object in the file name.")
+    print("Files are named filename.item['label'].objectNumber.item['confidence'].jpg")
+#    failOnError = hold
+    
+    
 #########################################################
 # ## The test suite #####################################
 #########################################################
 serverUpTest()
-    
+clearDebugPics()    
 logit(doFace == "Y", faceTests, "Face tests skipped", 28)
 logit(doScene == "Y", sceneTests, "scene tests skipped", 9)
 logit(doObj == "Y", objTests, "Object detection tests", 10)
@@ -459,6 +588,7 @@ logit(doDark == "Y", darkTests, "Detect dark test", 9)
 logit(doAction == "Y", actionTests, "Detect actionnet tests", 27)
 logit(doBackup == "Y", backupTests, "Backup tests", 1)
 logit(doExt == "Y", extTests, "Extra object detect object tests", 516) 
+logit(doTrained == "Y", trainTests, "Trained model object detect object tests", 542) 
     
 print("")
 print("Of " + str(testsRan + testsSkipped) + " tests")
