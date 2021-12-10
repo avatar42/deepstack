@@ -276,10 +276,8 @@ Of 3948 tests
 ```
 Note the warnings are from raccoons in pics I did not mark for training.
 
-# Utils
-## startDeepStack.sh
-=======
 # Other Utils
+## startDeepStack.sh
 ## startDeepStack.sh
 
 
