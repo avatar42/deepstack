@@ -64,7 +64,8 @@ v1/vision/custom/openlogo
 # For further help/info [see this debug guide](https://securitycam101.rmrr42.com/2021/10/quick-blue-iris-with-deepstack-debug.html)
 
 
-#Set these values as needed / to match your setup.
+# Set these values as needed / to match your setup.
+
 ```
 ### Note tested with Python 2.7 on CentoOS Linux
 ### Where images to test with are located
@@ -113,6 +114,8 @@ debugPrintOn = "N"
 failOnError = "Y"
 ```
 # If you run all the tests you will see output like this
+
+```
 .
 Ran 1 server up tests in 0:00:00.011784
 .....................................
@@ -271,19 +274,12 @@ Of 3948 tests
  Failed:0
 
 ```
-<<<<<<< HEAD
 Note the warnings are from raccoons in pics I did not mark for training.
 
-#Utils
-##startDeepStack.sh
+# Utils
+## startDeepStack.sh
 =======
 # Other Utils
 ## startDeepStack.sh
->>>>>>> branch 'main' of https://github.com/avatar42/deepstack.git
 
-Sample script to pull and start DeepStack or just start if image already exists
-
-## updateDeepStack.sh
-
-Sample script to stop, purge old images and pull latest DeepStack then call startDeepStack.sh
 
