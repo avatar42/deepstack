@@ -280,4 +280,10 @@ Note the warnings are from raccoons in pics I did not mark for training.
 ## startDeepStack.sh
 ## startDeepStack.sh
 
+# My custom model
+RMRR.pt is the model I created from the trainData data.
+
+RMRR_classes.txt are the object types trained for.
+
+
 
