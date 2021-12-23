@@ -126,7 +126,7 @@ def warn(msg):
     
     addNL()    
     testsWarned += 1
-    sys.stderr.write("WARN:" + msg + "\n")
+    sys.stderr.write("\nWARN:" + msg + "\n")
 
 
 # # if test is true call passed
@@ -257,7 +257,7 @@ def chkArray(foundItems, expected, testType, fileName):
     dprint(foundItems)
 
     warnTrue("Of " + str(len(expected)) + " expected " + str(expected) + " found objects, found:" + str(len(foundItems)) 
-             +" objects " + str(foundItems), len(foundItems) == len(expected))
+             +" objects " + str(foundItems) + " in " + fileName, len(foundItems) == len(expected))
     # check what we expect is there. Note other things might be found but here we only care about the expected
     for item in expected:
         assertTrue(item + " in " + testType + " test image:" + fileName, item in foundItems)
