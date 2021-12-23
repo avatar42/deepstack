@@ -6,7 +6,7 @@ import shutil
 import zipfile
 from PIL import Image
 from datetime import datetime
-from Cheetah.Templates._SkeletonPage import True
+# from Cheetah.Templates._SkeletonPage import True
 
 # # Note tested with Python 2.7 on CentoOS Linux
 # # Where images to test with are located
@@ -16,7 +16,7 @@ debugPath = "./debug.pics/"
 # # if Y saves debug images to compare between expected and found objects for mismatches.
 saveDebugPics = "Y"
 # # Base URL of your DeepStack server
-dsUrl = "http://localhost:82/"
+dsUrl = "http://192.168.2.197:82/"
 # # DeepStack started with -e MODE=Medium or -e MODE=High
 mode = "Medium" 
 # Test control flags. Set to N to skip test.
@@ -223,12 +223,22 @@ def readImageFile(fileName):
 
 # read in binary file and return
 def readBinaryFile(filePath):
+    return readFile(filePath, "rb")
+
+
+# read in binary file and return
+def readTextFile(filePath):
+    return readFile(filePath, "r")
+
+
+# read in binary file and return
+def readFile(filePath, readType):
     global testsRan
     
     testsRan += 1
     # with closes on section exit
-    with open(filePath, "rb") as f:
-        if f.mode == "rb":
+    with open(filePath, readType) as f:
+        if f.mode == readType:
             data = f.read()
             passed("Reading " + filePath)
             return data
@@ -529,7 +539,7 @@ def trainTests():
 #    failOnError = "N"
     trainPath = "trainData/train/"
     logStart()
-    classes = readBinaryFile(trainPath + "classes.txt").split(ln)
+    classes = readTextFile(trainPath + "classes.txt").splitlines()
     dprint(classes)
     
     imgNames = [fn for fn in os.listdir(trainPath)
@@ -541,7 +551,7 @@ def trainTests():
         expf = f[0:idx] + ".txt"
         if os.path.exists(trainPath + expf):
             dprint("against:" + trainPath + expf)      
-            data = readBinaryFile(trainPath + expf).split(ln)
+            data = readTextFile(trainPath + expf).splitlines()
             dprint(data)
             expected = []
             for line in data:
@@ -588,7 +598,7 @@ logit(doDark == "Y", darkTests, "Detect dark test", 9)
 logit(doAction == "Y", actionTests, "Detect actionnet tests", 27)
 logit(doBackup == "Y", backupTests, "Backup tests", 1)
 logit(doExt == "Y", extTests, "Extra object detect object tests", 516) 
-logit(doTrained == "Y", trainTests, "Trained model object detect object tests", 542) 
+logit(doTrained == "Y", trainTests, "Trained model object detect object tests", 645) 
     
 print("")
 print("Of " + str(testsRan + testsSkipped) + " tests")
