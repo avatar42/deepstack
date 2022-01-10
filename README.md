@@ -1,9 +1,12 @@
 # DeepStack utils.
 
-## Run DeepStack pulling new image if needed.
+Note I have moved the training data and sample model to [its own repo](https://github.com/avatar42/RMRR.model) to keep this one from becoming too large as I expand the model.
 
+## Run DeepStack with Docker pulling new image if needed.
+### Linux
 **docker run -e VISION-FACE=True -e VISION-DETECTION=True -e VISION-SCENE=True -v localstorage:/datastore -e MODE=Medium -v /deepstack/mymodels:/modelstore/detection -v /deepstack/myfaces:/DeepStack/Faces --name DSfaces -p 82:5000 deepquestai/deepstack**
-
+###Windows
+**docker run -e VISION-FACE=True -e VISION-DETECTION=True -e VISION-SCENE=True -v localstorage:/datastore -e MODE=Medium -v C:\DeepStack\MyModels:/modelstore/detection -v C:\DeepStack/myfaces:/DeepStack/Faces -p 82:5000 deepquestai/deepstack**
 
 Options are:
 Option       | Means  
@@ -19,6 +22,10 @@ Option       | Means
 **-p 82:5000** | External port:internal one. Internal is always 5000 and 82 is assumed external port by BI.
 **deepquestai/deepstack** | Name of cloud image to use.
 **--gpus all deepquestai/deepstack:gpu** | If using the gpu version you will want to use.
+
+## Windows local
+**deepstack --VISION-FACE True --VISION-DETECTION True --VISION-SCENE True --MODE Medium --MODELSTORE-DETECTION "c:/DeepStack/MyModels" -PORT 82**
+get install from [here](https://docs.deepstack.cc/index.html#installation-guide-for-cpu-version) and put all the custom models in c:\DeepStack\MyModels
 
 # Unit tests
 A quick Python 2.7 test to make sure your setup is working. Including the 4 custom models in the [DeepStack documentation](https://docs.deepstack.cc/custom-models-samples/index.html). **Note their online documentation has a lot of errors in it.**
@@ -65,144 +72,106 @@ v1/vision/custom/openlogo
 
 
 # Set these values as needed / to match your setup.
+## Configuration options for DeepStack utils in config.py
 
 ```
-### Note tested with Python 2.7 on CentoOS Linux
-### Where images to test with are located
-imgPath = "./test.imgs/"
-### Where to save debug images of from tests 
-debugPath = "./debug.pics/"
-### if Y saves debug images to compare between expected and found objects for mismatches.
-saveDebugPics = "Y"
-### Base URL of your DeepStack server
+# # Base URL of your DeepStack server
 dsUrl = "http://localhost:82/"
-### DeepStack started with -e MODE=Medium or -e MODE=High
+# # DeepStack started with -e MODE=Medium or -e MODE=High
 mode = "Medium" 
-# Test control flags. Set to N to skip test.
-### Run face tests
-doFace = "Y"
-### Run scene detection tests
-doScene = "Y"
-### Run object detection tests
-doObj = "Y"
-### Run backup tests
-doBackup = "Y"
-### Run all pics in the imgPath thru enabled (see custom models) object detection tests and compare with a base run.
-doExt = "Y"
-
-# Custom models
-### Run tests for [logo custom model](https://github.com/OlafenwaMoses/DeepStack_OpenLogo).
-doLogo = "Y"
-### Run tests for [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
-doPlate = "Y"
-### Run tests for [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
-doDark = "Y"
-### Run tests for [actionnet custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
-doAction = "Y"
-### Run tests for trained model.
-doTrained = "Y"
-### Name of trained set model. Usually the same as the name of the pt file.
-### RMRR is mine from the data in the checked in trainData folder. If you train your own replace the train folder in trainData with your own. 
+# # Where images to test with are located
+imgPath = "test.imgs/"
+# # Where to save debug images of from tests 
+debugPath = "debug.pics/"
+# # path to labeled training pics.
+trainPath = "../RMRR.model/train/"
+# # unlabeled / new file folder
+newPicPath = "new/"
+# # Name of trained set model. Usually the same as the name of the pt file.
+# # RMRR is mine from the data in the checked in trainData folder. If you train your own replace the train folder in trainData with your own. 
 trainedName = "RMRR" 
-### new line used in the data files in trainData folder
-ln = '\r\n'
+# # folder where images with found objects and their mapping files are put by quickLabel and read by chkClasses
+labeled = "labeled/"
+# # folder where images with not found objects are put by quickLabel and read by chkClasses
+unlabeled = "unlabeled/"
 
-### Output debug info Y,N
+# # Output debug info Y,N
 debugPrintOn = "N"
-
-### Y=Fail on error, N=Just warn on error
+# # if Y saves debug images to compare between expected and found objects for mismatches.
+saveDebugPics = "Y"
+# # Y=Fail on error, N=Just warn on error
 failOnError = "Y"
+
+# Supported images suffixes to look for in folders
+includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
+
+# # installed models to use to find objects
+# # detection the built in model
+# # [openlogo custom model](https://github.com/OlafenwaMoses/DeepStack_OpenLogo).
+# # [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
+# # [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
+# # [actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
+tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
+```
+## in fullTest.py you can turn off some test if wanted
+```
+# Test control flags. Set to N to skip test.
+# # Run face tests
+doFace = "Y"
+# # Run scene detection tests
+doScene = "Y"
+# # Run object detection tests
+doObj = "Y"
+# # Run backup tests
+doBackup = "Y"
+# # Run all pics in the config.imgPath thru enabled (see custom models) object detection tests and compare with a base run.
+doExt = "Y"
 ```
 # If you run all the tests you will see output like this
 
 ```
 .
-Ran 1 server up tests in 0:00:00.003000
+Ran 1 server up tests in 0:00:00.008001
 .....................................
-Ran 37 face tests in 0:00:02.638170
+Ran 37 face tests in 0:00:02.019431
+....................
+Ran 20 scene tests in 0:00:00.987697
 ............
-Ran 12 scene tests in 0:00:00.875536
-............
-Ran 12 detection tests in 0:00:00.659819
-......
-Ran 6 custom/openlogo tests in 0:00:00.470776
-.....
-Ran 5 custom/licence-plate tests in 0:00:00.234263
-.......
-..
-Ran 9 custom/dark tests in 0:00:00.375113
-...........................
-Ran 27 custom/actionnetv2 tests in 0:00:02.270303
+Ran 12 detection tests in 0:00:00.256550
 .
-Ran 1 backup tests in 0:00:00.019745
-..................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-...........................................................................
-Ran 765 detection tests in 0:00:47.306932
-.....
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
+Ran 1 backup tests in 0:00:00.014000
+......
+Ran 6 custom/openlogo tests in 0:00:00.304561
+...
+..
+Ran 5 custom/licence-plate tests in 0:00:00.166108
+.........
+Ran 9 custom/dark tests in 0:00:00.289784
+...........................
+Ran 27 custom/actionnetv2 tests in 0:00:01.406866
+..........................................
 ................................................................................
 .............................
-Ran 594 custom/openlogo tests in 0:03:19.816297
+Ran 151 detection tests in 0:00:04.017401
 ...................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-..........................................................
-Ran 589 custom/licence-plate tests in 0:01:15.813982
-......................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-......................................................
-Ran 716 custom/dark tests in 0:01:49.969101
-..........................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
+..................................................
+Ran 101 custom/openlogo tests in 0:00:08.087629
+..............................
+......................................................................
+Ran 100 custom/licence-plate tests in 0:00:04.009132
+..........
 ................................................................................
 ...............................................
-Ran 633 custom/actionnetv2 tests in 0:01:27.222787
+Ran 137 custom/dark tests in 0:00:07.948979
 .................................
 ................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-................................................................................
-....................................................
-Ran 645 RMRR tests in 0:00:24.227664
-Check images in ./debug.pics/ match the object in the file name.
-Files are named filename.item['label'].objectNumber.item['confidence'].jpg
+.....
+Ran 118 custom/actionnetv2 tests in 0:00:08.022125
 
-Of 4052 tests
- Ran:4052
+Of 725 tests
+ Ran:725
  Skipped:0
- Passed:4052
+ Passed:725
  Warnings:0
  Failed:0
 
@@ -210,12 +179,20 @@ Of 4052 tests
 
 # Other Utils
 ## startDeepStack.sh
-## startDeepStack.sh
+shell script for starting DeepStack with params needed for running tests.
+## updateDeepStack.sh
+shell script for upfating then starting DeepStack with params needed for running tests. 
+## testTorch.bat and testTorch.py
+test that Torch setup is working and using your GPU ready to train.
+## localColab.bat
+bat file to bring up my Jupyter Notebook for training with local GPU.
+## quickLabel.py
+Runs pics in **newPicPath** against all the installed object detect models to generate tag files similar to what the **Label.exe** would produce along with a list of all found objects (classes.txt).
 
 # My custom model
-RMRR.pt is the model I created from the trainData data.
+**RMRR.pt** is the model I created from the trainData data.
 
-RMRR_classes.txt are the object types trained for.
+**RMRR_classes.txt** are the object types trained for.
 
 
 
