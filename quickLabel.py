@@ -5,19 +5,30 @@ from PIL import Image
 import config
 
 # # Note tested with Python 3.9 on Windows
-imgCnt=0
+imgCnt = 0
+skippedCnt = 0
+labeledCnt = 0
+unlabeledCnt = 0
+
+
 # # do detect on each pic in config.newPicPath, 
 # # if has objects add to label file and move to labeled folder. 
 # # If found objects do not exist in config.trainPath + "classes.txt" then they will get added.
 # # If no objects found with any model then stick in unlabeled folder for manual processing.
 def lablePics():
     global imgCnt
+    global labeledCnt
+    global unlabeledCnt
+    global skippedCnt
         
     config.logStart()
     config.mkdirs(config.labeled)
     config.mkdirs(config.unlabeled)
 
-    classes = config.readTextFile(config.labeled + "classes.txt").splitlines()
+    if os.path.exists(config.labeled + "classes.txt"): 
+        classes = config.readTextFile(config.labeled + "classes.txt").splitlines()
+    else:
+        classes = config.readTextFile(config.trainPath + "classes.txt").splitlines()
     config.dprint(classes)
     
     imgNames = config.getImgNames(config.newPicPath)
@@ -26,9 +37,9 @@ def lablePics():
         newPicName = config.newPicPath + fn
         config.dprint("Checking:" + newPicName)
         if os.path.exists(config.trainPath + fn): 
+            skippedCnt += 1
             config.skipped(newPicName, 1)
         else:
-            imgCnt += 1
             tags = []
             for testType in config.tests2Run:
                 response = config.doPost(testType, files={"image":config.readBinaryFile(newPicName)})
@@ -62,6 +73,7 @@ def lablePics():
                         # Object ID    x_center    y_center    x_width    y_height
                         tags.append(str(idx) + " " + str(round(x_center, 6)) + " " + str(round(y_center, 6)) + " " + str(round(x_width, 6)) + " " + str(round(y_height, 6)))
                         if (config.saveDebugPics == "Y"):
+                            config.labelImg(config.debugPath + fn, image, item["label"] + ":" + str(i), x_min, y_min, "green", x_max, y_max)
                             cropped = image.crop((x_min, y_min, x_max, y_max))
                             cropped.save(config.debugPath + fn + "." + label + "." + str(i) + "." + str(item["confidence"]) + ".jpg")
 
@@ -69,6 +81,8 @@ def lablePics():
  
             config.dprint(tags)
             if len(tags) > 0:
+                imgCnt += 1
+                labeledCnt += len(tags)
                 idx = fn.rfind('.')
                 expf = fn[0:idx] + ".txt"
                 # write tag file to labeled
@@ -76,16 +90,21 @@ def lablePics():
                 # move image to labeled
                 config.passed(newPicName)
                 shutil.copy(newPicName, config.labeled)
+                if (config.debugPrintOn == "N"):
+                    os.remove(newPicName)                    
             else:
+                unlabeledCnt += 1
                 config.warn("no objects found in " + newPicName + ", moving to config.unlabeled for manual processing")
                 # move image to labeled
                 shutil.copy(newPicName, config.unlabeled)
+                if (config.debugPrintOn == "N"):
+                    os.remove(newPicName)                    
                 
     config.writeList(config.labeled , "classes.txt", classes)
     config.writeList("../labelImg/data/" , "predefined_classes.txt", classes)
                 
     config.logEnd(config.newPicPath)
-    print("Check images in " + config.labeled + " have been labeled correctly.")
+    print("Check images in " + config.labeled + " have been labeled automatically.")
     print("Images in " + config.unlabeled + " will have to be labeled manually.")
 
     
@@ -93,8 +112,8 @@ config.serverUpTest()
 config.clearDebugPics()
 lablePics()
 print("")
-print("Of " + str(imgCnt + config.testsSkipped) + " pics in " + config.trainPath)
-print(" Ignored dup files:" + str(config.testsSkipped))
-print(" Labeled:" + str(config.testsPassed) + " objects in " + str(imgCnt) + " files.")
-print(" Unlabeled:" + str(config.testsWarned) + " files.")
+print("Of " + str(imgCnt + skippedCnt + unlabeledCnt) + " pics in " + config.newPicPath)
+print(" Ignored dup files:" + str(skippedCnt))
+print(" Labeled:" + str(labeledCnt) + " objects in " + str(imgCnt) + " files.")
+print(" Unlabeled:" + str(unlabeledCnt) + " files.")
 print(" Failures:" + str(config.testsFailed))

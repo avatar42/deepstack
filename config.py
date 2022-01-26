@@ -3,9 +3,10 @@ import sys
 from datetime import datetime
 import requests
 import os
-from PIL import Image
+from PIL import Image, ImageFont, ImageDraw
 
 # Configuration options and common methods for DeepStack utils
+# # note trailing / on folder names
 # # Base URL of your DeepStack server
 dsUrl = "http://localhost:82/"
 # # DeepStack started with -e MODE=Medium or -e MODE=High
@@ -14,26 +15,31 @@ mode = "Medium"
 imgPath = "test.imgs/"
 # # Where to save debug images of from tests 
 debugPath = "debug.pics/"
-# # path to labeled training pics.
-trainPath = "../RMRR.model/train/"
+# # path to labeled training pics. (may be overwritten by some command line options)
+trainPath = "train/"
 # # unlabeled / new file folder
 # newPicPath = "D:/odrive/GD.video/cams/DeepStackWS/data/new/"
 newPicPath = "new/"
 # # Name of trained set model. Usually the same as the name of the pt file.
 # # RMRR is mine from the data in the checked in trainData folder. If you train your own replace the train folder in trainData with your own. 
-trainedName = "RMRR" 
+# # (may be overwritten by some command line options)
+# trainedName = "RMRR" 
+trainedName = "fire"  
 # # folder where images with found objects and their mapping files are put by quickLabel and read by chkClasses
 labeled = "labeled/"
 # # folder where images with not found objects are put by quickLabel and read by chkClasses
 unlabeled = "unlabeled/"
+# # where LabelImg in installed /cloned relative to my deepstack repo
+labelImgData = "../labelImg/data"
 
-# # Output debug info Y,N
-debugPrintOn = "Y"
+# # Output debug info Y,N Note if Y also causes a copy instead of a move of some files
+debugPrintOn = "N"
 # # if Y saves debug images to compare between expected and found objects for mismatches.
 saveDebugPics = "Y"
 # # Y=Fail on error, N=Just warn on error
 failOnError = "N"
-
+# 
+min_confidence = 0.50
 # Supported images suffixes to look for in folders
 includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
 
@@ -43,9 +49,10 @@ includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
 # # [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
 # # [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
 # # [actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
-# tests2Run = ["custom/"+trainedName] 
-tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
+tests2Run = ["custom/"+trainedName] 
+#tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
 
+imgCnt = 0
 testsRan = 0
 testsSkipped = 0
 testsFailed = 0
@@ -61,11 +68,10 @@ def progressPrint():
     global progressCnt
 
     progressCnt += 1
-    if progressCnt >= 80:
-        print(".")
-        progressCnt = 0
-    else:
-        sys.stdout.write('.')
+    # if progressCnt >= 80:
+    #     sys.stdout.write('\r')
+    #     progressCnt = 0
+    sys.stdout.write('.')
 
 
 # # log tests as skipped        
@@ -107,7 +113,8 @@ def fail(msg):
     if failOnError == "Y":
         raise ValueError("FAILED:" + msg)
     else:
-        warn("FAILED:" + msg)
+        addNL()    
+        sys.stderr.write("\nFAILED:" + msg + "\n")
 
 
 # # write msg to stderr
@@ -212,7 +219,7 @@ def doPost(testType, data=None, **kwargs):
 
 # read in binary file and return
 def readImageFile(fileName):
-    return readBinaryFile(imgPath + fileName)
+    return readBinaryFile(os.path.join(imgPath , fileName))
 
 
 # read in binary file and return
@@ -231,24 +238,40 @@ def readFile(filePath, readType):
     
     testsRan += 1
     # with closes on section exit
-    with open(filePath, readType) as f:
-        if f.mode == readType:
-            data = f.read()
-            passed(str(testsRan) + ":Reading " + filePath)
-            return data
-        else:
-            fail(str(testsRan) + ":Ccould not read " + filePath)
-#            skipped("could not read " + filePath, 1)
+    if os.path.exists(filePath):
+        with open(filePath, readType) as f:
+            if f.mode == readType:
+                data = f.read()
+                passed(str(testsRan) + ":Reading " + filePath)
+                return data
+            else:
+                skipped(str(testsRan) + ":Could not read " + filePath, 1)
+    else:
+        skipped(str(testsRan) + ":Could not find " + filePath, 1)
+        
+    return ""
 
 
 # # write list like classes.txt out
 def writeList(path, filename, lines):
     if not os.path.isdir(path):
         os.makedirs(path)
-    with open(path + filename, "w") as fout:
+    with open(os.path.join(path, filename), "w") as fout:
         if fout.mode == "w":
             for line in lines:
                 fout.write(line + "\n")
+        else:
+            raise ValueError("FAILED to write to " + os.path.join(path , filename))
+
+
+# # add an image filename and object's confidence to to a list file named objName+".lst.txt" in the debug files folder 
+# #so we can easily find files with objects of a type or no objects in them
+def appendDebugList(objName, filename, confidence):
+    with open(os.path.join(debugPath, objName + ".lst.txt"), "a") as fout:
+        if fout.mode == "a":
+                fout.write(filename + " " + str(confidence) + "\n")
+        else:
+            raise ValueError("FAILED to write to " + os.path.join(debugPath , objName + ".lst.txt"))
 
 
 # # remove all the old debug files in config.debugPath
@@ -260,7 +283,7 @@ def clearDebugPics():
                 if fn.endswith(".txt")]
     
     for f in txtNames:
-        os.remove(debugPath + f)
+        os.remove(os.path.join(debugPath , f))
 
 
 # # Quick test that the server is up.
@@ -278,22 +301,47 @@ def getImgNames(folder):
         return imgNames
 
 
-# # Save the cropped image that was found by object detection.
+# # If savePath != None Save the cropped image that was found by object detection.
+# # if mergePath != None the marks up image with rectangle around and label on found object
 # # Mainly for checking extra objects found in tests. 
-def saveFound(item, imgPath, savePath):
+def saveFound(item, imgPath, savePath=None, mergePath=None):
     image = Image.open(imgPath).convert("RGB")
     y_max = int(item["y_max"])
     y_min = int(item["y_min"])
     x_max = int(item["x_max"])
     x_min = int(item["x_min"])
-    cropped = image.crop((x_min, y_min, x_max, y_max))
-    cropped.save(savePath)
+    # Save the cropped image that was found by object detection.
+    if not savePath == None:
+        cropped = image.crop((x_min, y_min, x_max, y_max))
+        cropped.save(savePath)
+        
+    # highlight found object on debug image
+    if not mergePath == None:
+        if os.path.exists(mergePath):
+            image = Image.open(mergePath).convert("RGB")
+            labelImg(mergePath, image, item["label"], x_min, y_min, "green", x_max, y_max)
+            
     return image.size
 
 
-# # Save the cropped image that was mapped in training file.
+def labelImg(mergePath, image, text, x_min, y_min, color="black", x_max=-1, y_max=-1):
+
+        draw = ImageDraw.Draw(image)
+        if x_max > -1 and y_max > -1:
+            # xy – Two points to define the bounding box. Sequence of either [(x0, y0), (x1, y1)] or [x0, y0, x1, y1]. The second point is just outside the drawn
+            draw.rectangle((x_min, y_min, x_max, y_max), fill=None, outline=color)
+
+        font = ImageFont.truetype("arial", size=20)
+        # get text size
+        draw.text((x_min, y_min), text, font=font, fill=color)
+        image.save(mergePath)
+        
+        return image
+
+
+# # If savePath != None Save the cropped image that was mapped in training file.
 # # Mainly for checking missed objects found in tests. 
-def saveExpected(data, imgPath, savePath):
+def saveExpected(data, imgPath, savePath=None, mergePath=None, text=""):
     image = Image.open(imgPath).convert("RGB")
     w, h = image.size
 
@@ -307,9 +355,27 @@ def saveExpected(data, imgPath, savePath):
     y_min = int(y_center - y_height / 2)
     x_max = int(x_center + x_width / 2)
     x_min = int(x_center - x_width / 2)
-    cropped = image.crop((x_min, y_min, x_max, y_max))
-    cropped.save(savePath)
+    # Save the cropped image that was found by object detection.
+    if not savePath == None:
+        cropped = image.crop((x_min, y_min, x_max, y_max))
+        cropped.save(savePath)
+        
+    # highlight found object on debug image
+    if not mergePath == None:
+        if os.path.exists(mergePath):
+            image = Image.open(mergePath).convert("RGB")
+
+        labelImg(mergePath, image, text, x_min, y_min, "red", x_max, y_max)
+        
     return image.size
+
+
+# # to help with debug and tweaking of maps update the class lists for debugPath and lableImg
+def saveLabels2labelImgData(classList):
+    writeList(debugPath , "classes.txt", classList)
+
+    if os.path.exists(labelImgData):
+        writeList(labelImgData , "predefined_classes.txt", classList)
 
 
 def mkdirs(path):

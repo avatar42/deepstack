@@ -5,9 +5,11 @@ import config
 
 # # Note tested with Python 3.9 on Windows
 clsCnt = []
+mergedClasses = []
+idxMap = []
 
 
-def cntUsed(folder):
+def cntUsed(folder, classes):
     global clsCnt
 
     imgNames = config.getImgNames(folder)
@@ -15,74 +17,131 @@ def cntUsed(folder):
     for fn in imgNames:
         idx = fn.rfind('.')
         expf = fn[0:idx] + ".txt"
-        if os.path.exists(folder + expf):
-            data = config.readTextFile(folder + expf).splitlines()
+        fpath = os.path.join(folder, expf)
+        if os.path.exists(fpath):
+            data = config.readTextFile(fpath).splitlines()
             config.dprint(data)
             for line in data:
                 idx = line.find(' ')
                 c = int(line[0:idx])
                 if c > -1:
-                    clsCnt[c] += 1
+                    name = classes[c]
+                    try:
+                        i = mergedClasses.index(name)
+                        clsCnt[i] += 1
+                    except ValueError:
+                        config.fail(name + " not in mergedClasses")
             config.testsRan += 1 
         else:
-            config.skipped("Missing label file " + folder + expf + ", skipping ", 1)
+            config.skipped("Missing label file " + fpath + ", skipping ", 1)
     
     return imgNames
+
+
+def genMap(minCnt, newCnt, newClasses):
+    with open(os.path.join(config.labeled, "classes.map.txt"), "w") as fout:
+        if fout.mode == "w":
+            clsOut = []
+            i = 0
+            if (minCnt > -1):
+                config.dprint("Removing classes with less than " + str(minCnt) + " training images")
+                
+            for index in range(newCnt):
+                name = mergedClasses[index]
+                if clsCnt[index] >= minCnt:
+                    # add name to classes list
+                    clsOut.append(mergedClasses[index])
+                    srcdId = "train only"
+                    # if in new classes add to map
+                    try:
+                        srcdId = newClasses.index(name)
+                        idxMap[srcdId] = clsOut.index(name)
+                        line = "Mapping:" + str(srcdId) + ":" + name + " used " + str(clsCnt[index]) + " times to " + str(idxMap[srcdId]) + ":" + clsOut[idxMap[srcdId]]
+                        config.passed(line)
+                        fout.write(line + "\n")
+                    except ValueError:
+                        line = "Not mapping:" + str(index) + ":" + name + " used " + str(clsCnt[index]) + " times, since only in " + config.trainPath
+                        config.passed(line)
+                        fout.write(line + "\n")
+                       
+                    i += 1
+                else:
+                    idxMap[index] = -1
+                    config.warn("Tossing:" + str(index) + ":" + mergedClasses[index] + " used " + str(clsCnt[index]) + " times")
+    return clsOut
 
 
 # # Look at all the image maps and remove all the classes from classes.txt that are not used more than minCnt times
 def doChk(minCnt):
     global clsCnt
+    global mergedClasses
+    global idxMap
         
     config.logStart()
 
-    orgClasses = config.readTextFile(config.trainPath + "classes.txt").splitlines()
+    orgClasses = config.readTextFile(os.path.join(config.trainPath, "classes.txt")).splitlines()
     config.dprint(orgClasses)
 
-    newClasses = config.readTextFile(config.labeled + "classes.txt").splitlines()
+    newClasses = config.readTextFile(os.path.join(config.labeled, "classes.txt")).splitlines()
     config.dprint(newClasses)
     
-    newCnt = len(newClasses)
+    for cls in orgClasses:
+        mergedClasses.append(cls)
+
+    for cls in newClasses:
+        if not cls in mergedClasses:
+            mergedClasses.append(cls)
+
+    newCnt = len(mergedClasses)
     clsCnt = numpy.zeros(newCnt)
     x = numpy.arange(newCnt, dtype=int)
     idxMap = numpy.full_like(x, 1)
     
+    # move images in unlabeled to labeled
     imgNames = config.getImgNames(config.unlabeled)
     for fn in imgNames:
-        os.rename(config.unlabeled + fn, config.labeled + fn)
+        os.rename(os.path.join(config.unlabeled, fn), os.path.join(config.labeled, fn))
 
-    imgNames = cntUsed(config.trainPath)
-    imgNames = cntUsed(config.labeled)
-
+    orgCnt = []
+    cntUsed(config.trainPath, orgClasses)
     if minCnt == -1:
+        print("\nIn " + config.trainPath + " from mapping files")
         for index in range(newCnt):
-            print(str(index) + ":" + newClasses[index] + " used " + str(clsCnt[index]) + " times.")
+            print(str(index) + ":" + mergedClasses[index] + " used " + str(clsCnt[index]) + " times.")
+        
+        orgCnt = clsCnt
+        clsCnt = numpy.zeros(newCnt)
+        testPath = os.path.join(config.trainPath, "../test")
+        cntUsed(testPath, orgClasses)
+        print("\nIn " + testPath + " from mapping files")
+        for index in range(newCnt):
+            print(str(index) + ":" + mergedClasses[index] + " used " + str(clsCnt[index]) + " times.")
+            
+        orgCnt = clsCnt
+        clsCnt = numpy.zeros(newCnt)
+        imgNames = cntUsed(config.labeled, newClasses)
+        if len(imgNames) > 0:
+            print("\nIn " + config.labeled + " from mapping files")
+            for index in range(newCnt):
+                print(str(index) + ":" + mergedClasses[index] + " used " + str(clsCnt[index]) + " times.")
+                clsCnt[index] += orgCnt[index]
     else:
-        with open(config.labeled + "classes.map.txt", "w") as fout:
-            if fout.mode == "w":
-                clsOut = []
-                i = 0
-                config.dprint("Removing classes with less than " + str(minCnt) + " training images")
-                for index in range(newCnt):
-                    if clsCnt[index] >= minCnt:
-                        idxMap[index] = i
-                        clsOut.append(newClasses[index])
-                        config.passed("Mapping:" + str(index) + ":" + newClasses[index] + " used " + str(clsCnt[index]) + " times to " + str(i) + ":" + clsOut[i])
-                        fout.write("Mapping:" + str(index) + ":" + newClasses[index] + " used " + str(clsCnt[index]) + " times to " + str(i) + ":" + clsOut[i] + "\n")
-                        i += 1
-                    else:
-                        idxMap[index] = -1
-                        config.warn("Tossing:" + str(index) + ":" + newClasses[index] + " used " + str(clsCnt[index]) + " times")
-         
+        imgNames = cntUsed(config.labeled, newClasses)
+
+    clsOut = genMap(minCnt, newCnt, newClasses) 
+            
+    if minCnt > -1:
         config.writeList(config.trainPath , "classes.txt", clsOut)
+        config.saveLabels2labelImgData( clsOut)
   
         print("\nKept " + str(config.testsPassed) + " classes and tossed " + str(config.testsWarned))
         
         for fn in imgNames:
             idx = fn.rfind('.')
             expf = fn[0:idx] + ".txt"
-            if os.path.exists(config.labeled + expf):
-                data = config.readTextFile(config.labeled + expf).splitlines()
+            fpath = os.path.join(config.labeled, expf)
+            if os.path.exists(fpath):
+                data = config.readTextFile(fpath).splitlines()
                 config.dprint(data)
                 tags = []
                 ok2write = True
@@ -96,28 +155,36 @@ def doChk(minCnt):
                 config.dprint(tags)
                 if ok2write:
                     config.writeList(config.trainPath , expf, tags)
-                    os.rename(config.labeled + fn, config.trainPath + fn)
-                    os.remove(config.labeled + expf)                    
-    config.logEnd("doChk")
+                    if (config.debugPrintOn == "N"):
+                        os.remove(os.path.join(config.labeled , expf))                    
+                    os.rename(os.path.join(config.labeled , fn), os.path.join(config.trainPath , fn))
+    config.logEnd("classes")
 
 
 # # if no arg or -1 then just report
 if len(sys.argv) == 1:
     sys.argv.append("-1")
         
-config.dprint ('Number of arguments:' + str(len(sys.argv)) + 'arguments.')
-config.dprint ('Argument List:' + str(sys.argv))
-
 if sys.argv[1] == "-h":
-    print("USAGE: chkClasses [minCount]")
+    print("USAGE: chkClasses [minCount] [trainPath]")
     print(" where 'minCount' is the minimum number of training images required to keep a class")
-    print(" if 'minCount' is -1 or omitted only a report is performed.")
-    print("\nif not in report only mode does the following")
+    print(" if 'minCount' is -1 or no args passed, only a report is performed on trainPath.")
+    print(" 'minCount' is required if 'trainPath' is passed.")
+    print(" if 'trainPath' is passed then it overrides the setting in config.py")
+    print("\nif not in 'report only; mode does the following:")
     print("At start moves images in 'unlabeled' to 'labeled' folder")
-    print("Creates new classes file with those not meeting 'minCount' removed")
+    print("Creates new merged classes file with those not meeting 'minCount' removed")
     print("Creates class ID mapping table and saves a copy to classes.map.txt in 'labeled' folder")
-    print("Images and maps that do not use the unfiltered classes are remapped to the new class IDs and moved to 'trainPath'")
-    print("The unaltered classes.txt plus images and maps that do use the unfiltered classes are left in the labeled' folder in case needed later")
+    print("Images and maps that do not use the filtered classes are remapped to the new class IDs and moved to 'trainPath'")
+    print("The unaltered classes.txt plus images and maps that do use the filtered classes are left in the labeled' folder in case needed later")
 else:
+    if len(sys.argv) > 2:
+        config.trainPath = sys.argv[2]
+    if not config.trainPath.endswith("train/"):
+        config.trainPath = os.path.join(config.trainPath, "train/")
+    
+    if not os.path.exists(config.trainPath):
+        raise ValueError(config.trainPath + " does not exist")
+
     doChk(int(sys.argv[1]))
 
