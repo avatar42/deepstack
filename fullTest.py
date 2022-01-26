@@ -89,13 +89,19 @@ def getExpected(testType, fileName):
     expected = []
     path = config.imgPath + testType + "/" + fileName + '.json'
     if os.path.exists(path):
-        jfile = open(path)
-        data = json.load(jfile)
-        i = 0
-        for item in data["predictions"]:
-            expected.insert(i, item["label"])
-            i += 1
-            
+        try:
+            jfile = open(path)
+            data = json.load(jfile)
+            i = 0
+            for item in data["predictions"]:
+                expected.insert(i, item["label"])
+                i += 1
+         
+        except json.decoder.JSONDecodeError as e:
+        # empty or corrupt file
+            config.warn("Error: %s : %s" % (path, e.strerror))
+            expected.insert(0, "undefined")        
+    
     else:
         # flag as has no compare data
         expected.insert(0, "undefined")        

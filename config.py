@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 import requests
 import os
+import shutil
 from PIL import Image, ImageFont, ImageDraw
 
 # Configuration options and common methods for DeepStack utils
@@ -49,8 +50,8 @@ includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
 # # [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
 # # [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
 # # [actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
-tests2Run = ["custom/"+trainedName] 
-#tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
+#tests2Run = ["custom/"+trainedName] 
+tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
 
 imgCnt = 0
 testsRan = 0
@@ -276,14 +277,11 @@ def appendDebugList(objName, filename, confidence):
 
 # # remove all the old debug files in config.debugPath
 def clearDebugPics():
-    for f in getImgNames(debugPath):
-        os.remove(debugPath + f)
-
-    txtNames = [fn for fn in os.listdir(debugPath)
-                if fn.endswith(".txt")]
-    
-    for f in txtNames:
-        os.remove(os.path.join(debugPath , f))
+    try:
+        shutil.rmtree(debugPath)
+        os.mkdir(debugPath)
+    except OSError as e:
+        warn("Error: %s : %s" % (debugPath, e.strerror))
 
 
 # # Quick test that the server is up.
