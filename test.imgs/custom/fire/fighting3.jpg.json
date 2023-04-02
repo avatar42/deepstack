@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.7491418,
+            "label": "smoke",
+            "y_min": 227,
+            "x_min": 780,
+            "y_max": 511,
+            "x_max": 950
+        }
+    ],
+    "duration": 0
+}

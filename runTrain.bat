@@ -3,7 +3,7 @@ PATH=C:\cygwin\bin;%PATH%
 
 rem vars that may change
 rem model name
-set MNAME=fire
+set MNAME=RMRR
 rem folder name which is used as default project name
 set MFOLD=deepstack
 rem name of docker container being used to test with
@@ -11,11 +11,12 @@ set DNAME=tester
 
 rem change to trainer folder so imports work
 cd ../deepstack-trainer/
+del /S /Q train-runs\%MFOLD%\%MNAME%
 
 rem run trainer
 rem See https://securitycam101.rmrr42.com/2021/12/deepstack-training.html for info about options
 del ..\deepstack\*.cache
-python3 train.py --name %MNAME% --exist-ok --dataset-path "../%MFOLD%" 2>&1 | tee %MNAME%.train.log
+python3 train.py --name %MNAME% --epochs 600 --exist-ok --dataset-path "../%MFOLD%" 2>&1 | tee %MNAME%.train.log
 
 rem copy best model to MyModels
 copy C:\DeepStackWS\deepstack-trainer\train-runs\%MFOLD%\%MNAME%\weights\best.pt C:\DeepStack\MyModels\%MNAME%.pt
@@ -26,5 +27,7 @@ docker restart %DNAME%
 rem run tests
 cd ../deepstack
 python3 trainTest.py %MNAME% 2>&1 | tee %MNAME%.trainTest.log
+
+rem call ..\RMRR.birds\runTrain.bat
 
 pause

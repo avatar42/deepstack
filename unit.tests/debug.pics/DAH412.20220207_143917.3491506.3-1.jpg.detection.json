@@ -1,0 +1,30 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.45215183,
+            "label": "book",
+            "y_min": 755,
+            "x_min": 1454,
+            "y_max": 1024,
+            "x_max": 1699
+        },
+        {
+            "confidence": 0.8348989,
+            "label": "bus",
+            "y_min": 19,
+            "x_min": 0,
+            "y_max": 1433,
+            "x_max": 1243
+        },
+        {
+            "confidence": 0.87095284,
+            "label": "person",
+            "y_min": 587,
+            "x_min": 1146,
+            "y_max": 1438,
+            "x_max": 1591
+        }
+    ],
+    "duration": 0
+}

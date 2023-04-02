@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.732498,
+            "label": "mercedesbenz",
+            "y_min": 762,
+            "x_min": 582,
+            "y_max": 813,
+            "x_max": 642
+        }
+    ],
+    "duration": 0
+}

@@ -3,7 +3,7 @@ import os
 import numpy
 import shutil
 import config
-from common import logStart, logEnd, dprint, setTrainPath, showConfig, readTextFile, mv, getImgNames, writeList
+from common import logStart, logEnd, dprint, setPaths, showConfig, readTextFile, mv, getImgNames, writeList
 
 """Look at all the image maps and remove all the classes from classes.txt that are not used
 Note tested with Python 3.9 on Windows"""
@@ -109,7 +109,7 @@ if sys.argv[1] == "-h":
     os._exit(1)
 else:
     if len(sys.argv) > 1:
-        setTrainPath(sys.argv[1])
+        setPaths(sys.argv[1])
     else:
         showConfig()
         

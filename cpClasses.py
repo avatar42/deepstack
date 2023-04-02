@@ -6,7 +6,8 @@ import os
 import shutil
 import sys
 
-from common import logStart, logEnd, dprint, setTrainPath, genFolder, readTextFile, getImgNames, writeList
+from common import dprint, setPaths, genFolder, readTextFile, getImgNames, writeList, \
+    getMapFileName, readClassList, assertTrue
 import config
 
 
@@ -14,76 +15,77 @@ class CpClasses():
 
     def cpData(self, cpIDs, toPath, fromPath):
             
-        logStart()
-            
         imgNames = getImgNames(fromPath)
     
         cnt = 0
         for fn in imgNames:
-            idx = fn.rfind('.')
-            expf = os.path.join(fromPath, fn[0:idx] + ".txt")
-            if os.path.exists(expf):
-                data = readTextFile(expf).splitlines()
+            mapFn = getMapFileName(fromPath, fn)
+            if os.path.exists(mapFn):
+                data = readTextFile(mapFn).splitlines()
                 dprint(data)
+                doCp = False
                 for line in data:
                     idx = line.find(' ')
                     c = int(line[0:idx])
                     if c in cpIDs:
-                        shutil.copy(os.path.join(fromPath, fn), toPath)
-                        shutil.copy(expf, toPath)
-                        cnt += 1
+                        doCp = True
+                    
+                if doCp: 
+                    shutil.copy(os.path.join(fromPath, fn), toPath)
+                    shutil.copy(mapFn, toPath)
+                    cnt += 1
         
-        logEnd("Copied " + str(cnt) + " images from " + fromPath + " to " + toPath + " with their mapping files")
+        print("Copied " + str(cnt) + " images from " + fromPath + " to " + toPath + " with their mapping files")
 
-    def run(self, findString, toPath):
-        orgClasses = readTextFile(config.trainPath + "classes.txt").splitlines()
-        if len(orgClasses) == 0:
-            raise ValueError(config.trainPath + "classes.txt does not exist!")
-        
-        orgCnt = len(orgClasses)
-        dprint(orgClasses)
-        shutil.copy(os.path.join(config.trainPath, "classes.txt"), toPath)
-        
-        outPath = genFolder(toPath, "train/")  
-        newClasses = readTextFile(os.path.join(outPath , "classes.txt")).splitlines()
-        
-    # # get set of IDs which include findString and build a reduced classes.txt in
-        cpIDs = []
-        for index in range(orgCnt):
-            if orgClasses[index].find(findString) > -1:
-                cpIDs.append(index)
-                print("Found:"+orgClasses[index])
-                if not orgClasses[index] in newClasses:
-                    newClasses.append(orgClasses[index])
-         
-        writeList(outPath , "classes.txt", newClasses)   
-        print("Updated " + os.path.join(outPath , "classes.txt") + " to:")
-        print(newClasses)
+    def run(self, argv=[]):
+        if len(argv) < 3:
+            print("USAGE: cpClasses classNameSubString toPath [fromPath]")
+            print("If 'fromPath' not passed then defaults to trainPath defined in common.py")
+            print("Finds all the class IDs in 'fromPath'/train/classes.txt which have names that include 'classNameSubString'")
+            print("Copies 'fromPath'/train/classes.txt to 'toPath'/labeled/classes.txt to use automated merge later")
+            print("Note this overwrites 'toPath'/labeled/classes.txt.")
+            print("Creates or updates 'toPath'/train/classes.txt with the class names being used to copy")
+            print("Then finds all the mapping folder in 'fromPath'/train folder using those IDs and copies them and their matching image folder to 'toPath'/labeled")
+            print("Then finds all the mapping folder in 'fromPath'/test folder using those IDs and copies them and their matching image folder to 'toPath'/labeled")
+            print("Then finds all the mapping folder in 'fromPath'/valid folder using those IDs and copies them and their matching image folder to 'toPath'/labeled")
+        else: 
+            if len(argv) > 3:
+                setPaths(argv[3])
+            findString = argv[1]
+            toPath = genFolder(argv[2], "labeled/")
+            labeledClassFile = os.path.join(toPath, "classes.txt")
+            assertTrue(labeledClassFile +" exists",os.path.exists(labeledClassFile))
+                
+            # read the class list of the folder we are importing
+            orgClasses = readClassList(config.trainPath)
+            if len(orgClasses) == 0:
+                raise ValueError(config.trainPath + "classes.txt does not exist!")
+            
+            shutil.copy(os.path.join(config.trainPath, "classes.txt"), toPath)
 
-        self.cpData(cpIDs, toPath, config.trainPath)
-        self.cpData(cpIDs, toPath, config.testPath)
-        self.cpData(cpIDs, toPath, config.validPath)
+            orgCnt = len(orgClasses)
+            dprint(orgClasses)
 
-
-# # if no arg or -h then usage
-if len(sys.argv) < 3:
-    sys.argv[1] = "-h"
-        
-if sys.argv[1] == "-h":
-    print("USAGE: cpClasses classNameSubString toPath [fromPath]")
-    print("If 'fromPath' not passed then defaults to trainPath defined in common.py  ")
-    print("Finds all the class IDs in 'fromPath'/train/classes.txt which have names that include 'classNameSubString'")
-    print("Copies 'fromPath'/train/classes.txt to 'toPath'/train/classes.txt to use automated merge later")
-    print("Creates or updates 'toPath'/train/classes.txt with the class names being used to copy")
-    print("Then finds all the mapping files in 'fromPath'/train folder using those IDs and copies them and their matching image files to 'toPath'/labeled")
-    print("Then finds all the mapping files in 'fromPath'/test folder using those IDs and copies them and their matching image files to 'toPath'/labeled")
-    print("Then finds all the mapping files in 'fromPath'/valid folder using those IDs and copies them and their matching image files to 'toPath'/labeled")
-    os._exit(1)
-
-if len(sys.argv) > 3:
-    setTrainPath(sys.argv[3])
-
-if len(sys.argv) > 2:
-    toPath = genFolder(sys.argv[2], "labeled/")
+            # read the class list in labeled folder if there is one.
+            newClasses = readClassList(toPath)
+            
+        # # get set of IDs which include findString and append to classes.txt in toPath as needed
+            cpIDs = []
+            for index in range(orgCnt):
+                if orgClasses[index].find(findString) > -1:
+                    cpIDs.append(index)
+                    print("Found:" + orgClasses[index])
+                    if not orgClasses[index] in newClasses:
+                        newClasses.append(orgClasses[index])
+             
+            writeList(genFolder(argv[2], "train/") , "classes.txt", newClasses)   
+            print("Added to " + os.path.join(toPath , "classes.txt") + ":")
+            print(newClasses)
     
-CpClasses().run(sys.argv[1], toPath)
+            self.cpData(cpIDs, toPath, config.trainPath)
+            self.cpData(cpIDs, toPath, config.testPath)
+            self.cpData(cpIDs, toPath, config.validPath)
+
+    
+#############################################################    
+CpClasses().run(sys.argv)

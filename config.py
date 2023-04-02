@@ -1,10 +1,9 @@
 # # import for all vars
-# from config import dsUrl, mode, imgPath, debugPath, trainPath, testPath , validPath, newPicPath, trainedName, labeled, unlabeled, labelImgData, debugPrintOn, saveDebugPics, failOnError, min_confidence, includedExts, tests2Run 
 
 # Configuration options and common methods for DeepStack utils
 """Base URL of your DeepStack server
 note trailing / on folder names"""
-dsUrl = "http://localhost:82/"
+dsUrl = "http://10.10.2.197:82/"
 # dsUrl = "http://192.168.2.197:82/"
 """DeepStack started with -e MODE=Medium or -e MODE=High"""
 mode = "Medium" 
@@ -35,11 +34,11 @@ labelImgData = "../labelImg/data"
 """Number of columns to wrap progress dots at"""
 maxProgressCnt = 256
 """Output debug info Y,N Note if Y also causes a copy instead of a move of some files"""
-debugPrintOn = "N"
+debugPrintOn = "Y"
 """if Y saves debug images to compare between expected and found objects for mismatches."""
 saveDebugPics = "Y"
 """Y=Fail on error, N=Just warn on error"""
-failOnError = "N"
+failOnError = "Y"
 """ min confidence to use for model tests"""
 min_confidence = 0.50
 # Supported images suffixes to look for in folders"""
@@ -50,7 +49,11 @@ detection the built in model
 [openlogo custom model](https://github.com/OlafenwaMoses/DeepStack_OpenLogo).
 [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
 [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
-[actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET)."""
+[actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
+[RMRR my general custom model](https://github.com/avatar42/RMRR.model).
+[RMRR my bird custom model](https://github.com/avatar42/RMRR.birds).
+[RMRR my fire custom model](https://github.com/avatar42/RMRR.fire).
+"""
 # tests2Run = ["custom/"+trainedName] 
-tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
+tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2", "custom/RMRR", "custom/birds", "custom/fire"] 
 

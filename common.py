@@ -1,59 +1,14 @@
-import json
-import sys
 from datetime import datetime
-import requests
+import json
 import os
 import shutil
+import sys
+
 from PIL import Image, ImageFont, ImageDraw
+import requests
 
-# Configuration options and common methods for DeepStack utils
-# # note trailing / on folder names
-# # Base URL of your DeepStack server
-dsUrl = "http://localhost:82/"
-# # DeepStack started with -e MODE=Medium or -e MODE=High
-mode = "Medium" 
-# # Where images to test with are located
-imgPath = "test.imgs/"
-# # Where to save debug images of from tests 
-debugPath = "debug.pics/"
-# # path to labeled training pics. (may be overwritten by some command line options)
-trainPath = "train/"
-# # unlabeled / new file folder
-# newPicPath = "D:/odrive/GD.video/cams/DeepStackWS/data/new/"
-newPicPath = "new/"
-# # Name of trained set model. Usually the same as the name of the pt file.
-# # RMRR is mine from the data in the checked in trainData folder. If you train your own replace the train folder in trainData with your own. 
-# # (may be overwritten by some command line options)
-# trainedName = "RMRR" 
-trainedName = "fire"  
-# # folder where images with found objects and their mapping files are put by quickLabel and read by chkClasses
-labeled = "labeled/"
-# # folder where images with not found objects are put by quickLabel and read by chkClasses
-unlabeled = "unlabeled/"
-# # where LabelImg in installed /cloned relative to my deepstack repo
-labelImgData = "../labelImg/data"
+import config
 
-# # Output debug info Y,N Note if Y also causes a copy instead of a move of some files
-debugPrintOn = "N"
-# # if Y saves debug images to compare between expected and found objects for mismatches.
-saveDebugPics = "Y"
-# # Y=Fail on error, N=Just warn on error
-failOnError = "N"
-# 
-min_confidence = 0.50
-# Supported images suffixes to look for in folders
-includedExts = ['jpg', 'webp', 'bmp', 'png', 'gif']
-
-# # installed models to use to find objects
-# # detection the built in model
-# # [openlogo custom model](https://github.com/OlafenwaMoses/DeepStack_OpenLogo).
-# # [licence-plate custom model](https://github.com/odd86/deepstack_licenceplate_model).
-# # [dark custom model](https://github.com/OlafenwaMoses/DeepStack_ExDark).
-# # [actionnetv2 custom model](https://github.com/OlafenwaMoses/DeepStack_ActionNET).
-#tests2Run = ["custom/"+trainedName] 
-tests2Run = ["detection", "custom/openlogo", "custom/licence-plate", "custom/dark", "custom/actionnetv2"] 
-
-imgCnt = 0
 testsRan = 0
 testsSkipped = 0
 testsFailed = 0
@@ -63,19 +18,22 @@ progressCnt = 0
 startCnt = 0
 startTime = datetime.now()
 
+"""if config.debugPrintOn == "N" prints a '.' wrapped at maxProgressCnt columns"""
 
-# # if config.debugPrintOn == "N" prints a '.' wrapped at 80 columns
+
 def progressPrint():
     global progressCnt
-
+    
     progressCnt += 1
-    # if progressCnt >= 80:
-    #     sys.stdout.write('\r')
-    #     progressCnt = 0
+    if progressCnt >= config.maxProgressCnt:
+        sys.stdout.write('\r')
+        progressCnt = 0
     sys.stdout.write('.')
 
 
-# # log tests as skipped        
+"""log tests as skipped"""        
+
+
 def skipped(msg, skipped):
     global testsSkipped
     
@@ -83,7 +41,9 @@ def skipped(msg, skipped):
     dprint("Skipped " + str(skipped) + " " + msg)
 
 
-# # if config.debugPrintOn == "Y" adds new line to log so progress dots do not make messages appear off screen 
+"""if config.debugPrintOn == "Y" adds new line to log so progress dots do not make messages appear off screen""" 
+
+
 def addNL():
     global progressCnt
 
@@ -92,33 +52,38 @@ def addNL():
         progressCnt = 0
 
 
-# single point to turn off all the debug messages 
+"""single point to turn off all the debug messages or preappend a newline and reset progressCnt"""
+
+
 def dprint(msg):
     global progressCnt
 
-    if debugPrintOn == "Y":
+    if config.debugPrintOn == "Y":
         if progressCnt > 0:
             print("")
             progressCnt = 0
 
         print(msg)
 
+"""if failOnError == "Y" ends testing with message
+if failOnError == "N" calls warn with msg"""
 
-# # if failOnError == "Y" ends testing with message
-# # if failOnError == "N" calls warn with msg
+
 def fail(msg):
     global testsFailed
     
     addNL()
     testsFailed += 1
-    if failOnError == "Y":
+    if config.failOnError == "Y":
         raise ValueError("FAILED:" + msg)
     else:
         addNL()    
         sys.stderr.write("\nFAILED:" + msg + "\n")
 
 
-# # write msg to stderr
+"""write msg to stderr"""
+
+
 def warn(msg):
     global testsWarned
     
@@ -128,72 +93,197 @@ def warn(msg):
     sys.stderr.write("\n" + msg + "\n")
 
 
-# # if config.debugPrintOn == "Y" prints PASSED: msg otherwise a '.'
+"""if config.debugPrintOn == "Y" prints PASSED: msg otherwise a '.'"""
+
+
 def passed(msg):
     global testsPassed
     
     testsPassed += 1
-    if debugPrintOn == "Y":
+    if config.debugPrintOn == "Y":
         addNL()
-#        print("PASSED:" + str(msg))
+        print("PASSED:" )
         print(str(msg))
     else:
         progressPrint()
 
+    dprint("testsPassed:" + str(testsPassed))
 
-# # initialize vars for test counting and timing    
-def logStart():
+
+""" Increment testsRan """
+
+
+def incTestRan():
+    global testsRan
+    testsRan += 1
+    dprint("testsRan:" + str(testsRan))
+
+
+""" Get testsRan """
+
+
+def getTestRan():
+    global testsRan
+    return testsRan
+
+
+""" Get testsPassed """
+
+
+def getTestsPassed():
+    global testsPassed
+    return testsPassed
+
+
+""" Get testsSkipped """
+
+
+def getTestsSkipped():
+    global testsSkipped
+    return testsSkipped
+
+
+""" Get testsFailed """
+
+
+def getTestsFailed():
+    global testsFailed
+    return testsFailed
+
+
+""" Get testsSkipped """
+
+
+def getTestsWarned():
+    global testsWarned
+    return testsWarned
+
+
+""" Reset test counters """
+
+
+def resetTestCnts(text=None):
+    global testsRan
+    global testsSkipped
+    global testsFailed
+    global testsPassed
+    global testsWarned
+    global startCnt
+
+    startCnt = 0
+    testsRan = 0
+    testsSkipped = 0
+    testsFailed = 0
+    testsPassed = 0
+    testsWarned = 0
+    logStart(text)
+
+
+def chkTestCnts(ran, passed, skipped, failed, warned):
+    global testsRan
+    global testsSkipped
+    global testsFailed
+    global testsPassed
+    global testsWarned
+    
+    assertEqual("TestRan", ran, testsRan)
+    assertEqual("TestsPassed", passed + 1, testsPassed)
+    assertEqual("TestsSkipped", skipped, testsSkipped)
+    assertEqual("TestsFailed", failed, testsFailed)
+    assertEqual("TestsWarned", warned, testsWarned)
+    if skipped > 0:
+        print("\n" + str(skipped) + " skipped tests expected")
+    if failed > 0:
+        print("\n" + str(failed) + " failed tests expected")
+    if warned > 0:
+        print("\n" + str(warned) + " warned tests expected")
+
+
+"""initialize vars for test counting and timing"""
+
+
+def logStart(text=None):
     global startCnt
     global startTime
     global testsRan
 
     startCnt = testsRan
+    dprint("startCnt:" + str(startCnt))
     startTime = datetime.now()
+    if not text == None:
+        print(text)
 
 
-# # output info about the test set just run
-def logEnd(testType):
+"""output info about the test set just run"""
+
+
+def logEnd(text):
     global startCnt
     global startTime
     global testsRan
     global testsSkipped
 
-    print("\nRan " + str(testsRan - startCnt) + " " + testType + " tests in " + str(datetime.now() - startTime))
+    dprint("startCnt:" + str(startCnt))
+    idx = text.rfind(' ')
+    if idx == -1:
+        print("\nRan " + str(testsRan - startCnt) + " " + text + " tests in " + str(datetime.now() - startTime))
+        showTestReport()
+    else:
+        print("\n" + text + " in " + str(datetime.now() - startTime))
     # print("\nProcessed " + str(testsRan) + " mapping files, " + str(testsSkipped) + " could not be processed in " + str(datetime.now() - startTime))
 
+"""if test is true run method
+if test is false add tests to skip count."""
 
-# # if test is true run method
-# # if test is false add tests to skip count.
+
 def logit(test, method, msg, skipCnt):
     if test: 
         method()
     else:
         skipped(msg, skipCnt)
 
+"""if test is true call passed
+if test is false call fail"""
 
-# # if test is true call passed
-# # if test is false call fail
+
 def assertTrue(msg, test):
-    global testsRan
-    testsRan += 1
+    incTestRan()
     if test:
         passed(msg)
     else:
         fail(msg)
 
+"""if expected == found is true call passed
+if expected == found is false call fail
+"""
 
-# # if test is true call passed
-# # if test is false call warn
+
+def assertEqual(msg, expected, found):
+    incTestRan()
+    if expected == found:
+        passed(msg)
+    else:
+        fail(msg + ": expected:" + str(expected) + " but got:" + str(found))
+
+"""if test is true call passed
+if test is false call warn"""
+
+
 def warnTrue(msg, test):
-    global testsRan
-    testsRan += 1
+    incTestRan()
     if test:
         passed(msg)
     else:
         warn(msg)
 
+"""send a command to DeepStack
+:param testType: API part of URL that goes after v1/vision/ :class:`String` object.
+:param data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
+:param \*\*kwargs: Optional arguments that ``request`` takes.
+returns JSON object of response
+"""
 
-# # send a command to DeepStack
+
 def doPost(testType, data=None, **kwargs):
     """Sends a POST request, gets clean response and checks it for success
 
@@ -203,8 +293,8 @@ def doPost(testType, data=None, **kwargs):
     :return: :class:`Response <Response>` object
     :rtype: requests.Response
     """
-    response = requests.post(dsUrl + "v1/vision/" + testType, data=data, **kwargs)
-    assertTrue(dsUrl + "v1/vision/" + testType + " returned " + str(response.status_code),
+    response = requests.post(config.dsUrl + "v1/vision/" + testType, data=data, **kwargs)
+    assertTrue(config.dsUrl + "v1/vision/" + testType + " returned " + str(response.status_code),
                response.status_code == 200)
     if response.status_code == 200:
         jres = response.json()
@@ -214,30 +304,36 @@ def doPost(testType, data=None, **kwargs):
         dprint("jres string = " + str(jres))
         assertTrue(jres, jres["success"])    
         return jres
-    else:  # Since we have not json to return fake some up in case we are not failing on errors.
+    else:  # Since we have no json to return fake some up in case we are not failing on errors.
         return json.loads('{ "duration": 0, "predictions": [], "success": true }')
 
 
-# read in binary file and return
+"""read in binary file and return"""
+
+
 def readImageFile(fileName):
-    return readBinaryFile(os.path.join(imgPath , fileName))
+    return readBinaryFile(os.path.join(config.imgPath , fileName))
 
 
-# read in binary file and return
+"""read in binary file and return"""
+
+
 def readBinaryFile(filePath):
     return readFile(filePath, "rb")
 
 
-# read in binary file and return
+"""read in binary file and return"""
+
+
 def readTextFile(filePath):
     return readFile(filePath, "r")
 
 
-# read in binary file and return
+"""read in binary file and return"""
+
+
 def readFile(filePath, readType):
-    global testsRan
-    
-    testsRan += 1
+    incTestRan()
     # with closes on section exit
     if os.path.exists(filePath):
         with open(filePath, readType) as f:
@@ -253,55 +349,170 @@ def readFile(filePath, readType):
     return ""
 
 
-# # write list like classes.txt out
-def writeList(path, filename, lines):
+"""write list like classes.txt out"""
+
+
+def writeList(path, filename, lines, mode="w"):
     if not os.path.isdir(path):
         os.makedirs(path)
-    with open(os.path.join(path, filename), "w") as fout:
-        if fout.mode == "w":
+    with open(os.path.join(path, filename), mode) as fout:
+        if fout.mode == mode:
             for line in lines:
                 fout.write(line + "\n")
         else:
             raise ValueError("FAILED to write to " + os.path.join(path , filename))
 
+""" read the classes.txt file in folder and return lines as a list.
+If classes.txt does not exist, returns empty list
+"""
 
-# # add an image filename and object's confidence to to a list file named objName+".lst.txt" in the debug files folder 
-# #so we can easily find files with objects of a type or no objects in them
+
+def readClassList(folder):
+    rtn = readTextFile(os.path.join(folder , "classes.txt"))
+    if rtn == "":
+        return []
+    else:
+        return rtn.splitlines()
+
+"""add an image filename and object's confidence to to a list file named objName+".lst.txt" in the debug files folder 
+so we can easily find files with objects of a type or no objects in them"""
+
+
 def appendDebugList(objName, filename, confidence):
-    with open(os.path.join(debugPath, objName + ".lst.txt"), "a") as fout:
+    with open(os.path.join(config.debugPath, objName + ".lst.txt"), "a") as fout:
         if fout.mode == "a":
                 fout.write(filename + " " + str(confidence) + "\n")
         else:
-            raise ValueError("FAILED to write to " + os.path.join(debugPath , objName + ".lst.txt"))
+            raise ValueError("FAILED to write to " + os.path.join(config.debugPath , objName + ".lst.txt"))
 
 
-# # remove all the old debug files in config.debugPath
+"""remove all the old debug files in config.debugPath"""
+
+
 def clearDebugPics():
+    clearFolder(config.debugPath)
+
+    
+"""remove all the files in folder"""
+
+
+def clearFolder(folder):
     try:
-        shutil.rmtree(debugPath)
-        os.mkdir(debugPath)
+        shutil.rmtree(folder)
+        os.mkdir(folder)
     except OSError as e:
-        warn("Error: %s : %s" % (debugPath, e.strerror))
+        warn("Error: %s : %s" % (folder, e.strerror))
 
 
-# # Quick test that the server is up.
+def clearDebugLists():
+    try:
+        for fn in os.listdir(config.debugPath):
+            if fn.endswith(".lst.txt"):
+                os.remove(os.path.join(config.debugPath, fn)) 
+    except OSError as e:
+        warn("Error: %s : %s" % (config.debugPath, e.strerror))
+
+
+"""Quick test that the server is up."""
+
+
 def serverUpTest():
     logStart()
-    # # quick test the see server is up
-    response = requests.get(dsUrl)
-    assertTrue("DeepStack responding", response.status_code == 200)
+    response = requests.get(config.dsUrl)
+    if not response.status_code == 200:
+        raise ValueError("FAILED:DeepStack respond with:" + str(response.status_code))
+
     logEnd("server up")
 
 
+""" generate a map file path from the folder and imgName by swapping the extension with '.txt' """
+
+
+def getMapFileName(folder, imgName):
+    idx = imgName.rfind('.')
+    return os.path.join(folder, imgName[0:idx] + ".txt")
+
+
+""" Get the names of all the image files in folder """
+
+
 def getImgNames(folder):
+        return getfileNames(folder, config.includedExts)
+
+
+""" Get the names of all the files in folder with an extension in includedExts """
+
+
+def getfileNames(folder, includedExts=config.includedExts):
         imgNames = [fn for fn in os.listdir(folder)
         if any(fn.endswith(ext) for ext in includedExts)]
         return imgNames
 
 
-# # If savePath != None Save the cropped image that was found by object detection.
-# # if mergePath != None the marks up image with rectangle around and label on found object
-# # Mainly for checking extra objects found in tests. 
+def genMap(fromFolder, toFolder):
+    with open(os.path.join(toFolder, "classes.map.txt"), "w") as fout:
+        if fout.mode == "w":
+            fromClasses = readClassList(os.path.join(fromFolder, "classes.txt"))  
+            toClasses = readClassList(os.path.join(toFolder, "classes.txt"))  
+            clsOut = []
+            for index in range(len(fromClasses)):
+                name = fromClasses[index]
+                if not name in toClasses:
+                    toClasses.append(name)
+                
+                clsOut.append(toClasses.index(name))    
+                srcdId = newClasses.index(name)
+                self.idxMap[srcdId] = clsOut.index(name)
+                line = "Mapping:" + str(srcdId) + ":" + name + " used " + str(self.clsCnt[index]) + " times to " + str(self.idxMap[srcdId]) + ":" + clsOut[self.idxMap[srcdId]]
+                passed(line)
+                fout.write(line + "\n")
+    return clsOut
+
+""" Check the number of files of a type are in folder
+Pass [] as includedExts to look at all files.
+"""
+
+
+def chkFileCnt(folder, includedExts, expectedCnt):
+    if len(includedExts) > 0: 
+        imgNames = [fn for fn in os.listdir(folder)
+        if any(fn.endswith(ext) for ext in config.includedExts)]
+        return imgNames
+    else:
+        imgNames = os.listdir(folder)
+       
+    assertEqual("Files in " + folder + ":\n" + str(imgNames) + "\n", expectedCnt, len(imgNames)) 
+
+
+""" Compare generated map file for imgFilename in srcFolder with saved expected file in expectedFolder """
+
+
+def compareMapFiles(srcFolder, expectedFolder, imgFilename):
+    gennedMap = getMapFileName(srcFolder, imgFilename)
+    assertTrue("No generated map found for " + imgFilename, os.path.exists(gennedMap))
+    createdData = readTextFile(gennedMap).splitlines()
+    expectedMap = getMapFileName(expectedFolder, imgFilename)
+    assertTrue("No expected map found for " + imgFilename, os.path.exists(gennedMap))
+    expectedData = readTextFile(expectedMap).splitlines()
+    for index in range(len(expectedData)):
+        assertEqual("Map data mismatch", expectedData[index], createdData[index])
+
+
+""" Compare generated file with saved expected file """
+
+
+def compareTextFiles(createdFilePath, expectedFilePath):
+    assertTrue("No generated file found " + createdFilePath, os.path.exists(createdFilePath))
+    createdData = readTextFile(createdFilePath)
+    assertTrue("No expected file found " + expectedFilePath, os.path.exists(expectedFilePath))
+    expectedData = readTextFile(expectedFilePath)
+    assertEqual("Map data", expectedData, createdData)
+
+"""If savePath != None Save the cropped image that was found by object detection.
+if mergePath != None the marks up image with rectangle around and label on found object
+Mainly for checking extra objects found in tests. """
+
+
 def saveFound(item, imgPath, savePath=None, mergePath=None):
     image = Image.open(imgPath).convert("RGB")
     y_max = int(item["y_max"])
@@ -336,9 +547,10 @@ def labelImg(mergePath, image, text, x_min, y_min, color="black", x_max=-1, y_ma
         
         return image
 
+"""If savePath != None Save the cropped image that was mapped in training file.
+Mainly for checking missed objects found in tests. """
 
-# # If savePath != None Save the cropped image that was mapped in training file.
-# # Mainly for checking missed objects found in tests. 
+
 def saveExpected(data, imgPath, savePath=None, mergePath=None, text=""):
     image = Image.open(imgPath).convert("RGB")
     w, h = image.size
@@ -368,15 +580,154 @@ def saveExpected(data, imgPath, savePath=None, mergePath=None, text=""):
     return image.size
 
 
-# # to help with debug and tweaking of maps update the class lists for debugPath and lableImg
-def saveLabels2labelImgData(classList):
-    writeList(debugPath , "classes.txt", classList)
+"""to help with debug and tweaking of maps update the class lists for debugPath and lableImg"""
 
-    if os.path.exists(labelImgData):
-        writeList(labelImgData , "predefined_classes.txt", classList)
+
+def saveLabels2labelImgData(classList):
+    writeList(config.debugPath , "classes.txt", classList)
+
+    if os.path.exists(config.labelImgData):
+        writeList(config.labelImgData , "predefined_classes.txt", classList)
+        writeList(config.labelImgData , "predefined_classes." + config.trainedName + ".txt", classList)
+
+"""
+Creates path if needed
+Throws ValueError if path already exists and is not a folder
+"""        
 
 
 def mkdirs(path):
-    if not os.path.isdir(path):
+    if not os.path.exists(path):
         os.makedirs(path)
+    if not os.path.isdir(path):
+        raise ValueError(path + " exists and is not a folder!")
 
+"""
+Moves or copies as allowed srcFile to dstFolder
+Creates dstFolder if needed
+Note throws Error if file already exists and overwrite is not True
+"""        
+
+
+def mv(srcFile, dstFolder, overwrite=None):
+    mkdirs(dstFolder)
+    if (overwrite):
+        dstFolder = os.path.join(dstFolder, shutil._basename(srcFile))
+    shutil.move(srcFile, dstFolder)
+
+"""
+Show config options being used
+"""        
+
+
+def showConfig():
+    print("Using folders:")
+    print("trainPath:" + config.trainPath)
+    print("testPath:" + config.testPath)
+    print("validPath:" + config.validPath)
+    print("labeled:" + config.labeled)
+    print("unlabeled:" + config.unlabeled)
+    print("newPicPath:" + config.newPicPath)
+    print("debugPath:" + config.debugPath)
+    print("\nimgPath:" + config.imgPath)
+    print("labelImgData:" + config.labelImgData)
+    
+    print("\nUsing options:")
+    print("dsUrl:" + config.dsUrl)
+    print("mode:" + config.mode) 
+    print("trainedName:" + config.trainedName) 
+    print("maxProgressCnt:" + str(config.maxProgressCnt))
+    print("debugPrintOn:" + config.debugPrintOn)
+    print("saveDebugPics:" + config.saveDebugPics)
+    print("failOnError:" + config.failOnError)
+    print("min_confidence:" + str(config.min_confidence))
+    print("includedExts:" + str(config.includedExts))
+    print("tests2Run:" + str(config.tests2Run)) 
+
+"""
+Sets trainPath to path and sets testPath, vaildPath, labeled, unlabeled and debugPath relative to it.
+Effectively changes from using the deepstack folder to a models folder.
+if newPath is not empty then sets paths relative to it instead.
+"""        
+
+
+def setPaths(path="", newPath=""): 
+    if len(path) > 0:
+        config.trainPath = path.replace("\\", "/")
+    
+    if len(newPath) > 0:
+        newPath = newPath.replace("\\", "/")
+        if not newPath.endswith("/"):
+            newPath = newPath + "/"
+        config.newPicPath = newPath
+        config.trainPath = os.path.join(newPath, "../train")
+        mkdirs(config.trainPath)
+    
+    if not config.trainPath.endswith("/"):
+        config.trainPath = config.trainPath + "/"
+        
+    if not config.trainPath.endswith("train/"):
+        config.trainPath = os.path.join(config.trainPath, "train/")
+    
+    if not os.path.exists(config.trainPath):
+        raise ValueError(config.trainPath + " does not exist")
+    
+    config.testPath = config.trainPath.replace("train/", "test/")
+    mkdirs(config.testPath)
+    config.validPath = config.trainPath.replace("train/", "valid/")
+    mkdirs(config.validPath)
+    config.labeled = config.trainPath.replace("train/", "labeled/")
+    mkdirs(config.labeled)
+    config.unlabeled = config.trainPath.replace("train/", "unlabeled/")
+    mkdirs(config.unlabeled)
+    config.debugPath = config.trainPath.replace("train/", "debug.pics/")  
+    mkdirs(config.debugPath)
+    
+    if config.debugPrintOn == "Y":
+        showConfig()
+    
+"""
+Check toPath ends with subFolder
+if not adds subFolder to toPath
+Then creates toPath if needed.
+"""
+
+
+def genFolder(toPath, subFolder):
+    if not toPath.endswith("/"):
+        toPath = toPath + "/"
+        
+    if not subFolder.endswith("/"):
+        subFolder = subFolder + "/"
+        
+    if not toPath.endswith(subFolder):
+        toPath = os.path.join(toPath, subFolder)
+    
+    if not os.path.exists(toPath):
+        os.mkdir(toPath)
+        
+    return toPath
+
+""" If fout is not None write test report summary to a file
+Otherwise to the screen
+"""
+
+
+def showTestReport(fout=None):
+    if fout == None:
+        print("")
+        otherPassed = testsRan - testsPassed - testsWarned - testsFailed
+        print("Of " + str(testsRan + testsSkipped) + " tests")
+        print(" Ran:" + str(testsRan))
+        print(" Skipped:" + str(testsSkipped))
+        print(" Passed:" + str(testsPassed + otherPassed))
+        print(" Warnings:" + str(testsWarned))
+        print(" Failed:" + str(testsFailed))
+    else:
+        fout.write("\n")
+        fout.write("Of " + str(testsRan + testsSkipped) + " tests\n")
+        fout.write(" Ran:" + str(testsRan) + "\n")
+        fout.write(" Skipped:" + str(testsSkipped) + "\n")
+        fout.write(" Passed:" + str(testsPassed) + "\n")
+        fout.write(" Warnings:" + str(testsWarned) + "\n")
+        fout.write(" Failed:" + str(testsFailed) + "\n")

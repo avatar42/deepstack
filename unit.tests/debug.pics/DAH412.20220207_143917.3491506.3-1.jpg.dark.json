@@ -1,0 +1,22 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.76318175,
+            "label": "Bus",
+            "y_min": 16,
+            "x_min": 0,
+            "y_max": 1425,
+            "x_max": 1283
+        },
+        {
+            "confidence": 0.89383036,
+            "label": "People",
+            "y_min": 567,
+            "x_min": 1179,
+            "y_max": 1440,
+            "x_max": 1600
+        }
+    ],
+    "duration": 0
+}
