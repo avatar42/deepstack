@@ -1,0 +1,22 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.447033,
+            "label": "dave",
+            "y_min": 0,
+            "x_min": 94,
+            "y_max": 700,
+            "x_max": 592
+        },
+        {
+            "confidence": 0.47829252,
+            "label": "raccoon",
+            "y_min": 0,
+            "x_min": 108,
+            "y_max": 700,
+            "x_max": 541
+        }
+    ],
+    "duration": 0
+}

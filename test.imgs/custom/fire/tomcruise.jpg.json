@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.5342582,
+            "label": "clouds",
+            "y_min": 20,
+            "x_min": 0,
+            "y_max": 683,
+            "x_max": 162
+        }
+    ],
+    "duration": 0
+}

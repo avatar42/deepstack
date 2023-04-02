@@ -1,52 +1,50 @@
 import sys
 import os
 import numpy
-import config
+import common
 
 # # Note tested with Python 3.9 on Windows
 
-
-# # Look at all the image maps and remove all the classes from classes.txt that are not used more than minCnt times
-def rmCls(minCnt):
+# # Look at all the image maps and remove all the classes from classes.txt that are not used
+def rmCls():
         
-    config.logStart()
+    common.logStart()
 
-    orgClasses = config.readTextFile(config.trainPath + "classes.txt.old").splitlines()
+    orgClasses = common.readTextFile(common.trainPath + "classes.txt.old").splitlines()
     if len(orgClasses) == 0:
-        raise ValueError(config.trainPath + "classes.txt.old does not exist!")
+        raise ValueError(common.trainPath + "classes.txt.old does not exist!")
     
-    config.dprint(orgClasses)
+    common.dprint(orgClasses)
 
-    newClasses = config.readTextFile(config.trainPath + "classes.txt").splitlines()
-    config.dprint(newClasses)
+    newClasses = common.readTextFile(common.trainPath + "classes.txt").splitlines()
+    common.dprint(newClasses)
     
     orgCnt = len(orgClasses)
     x = numpy.arange(orgCnt, dtype=int)
-    idxMap = numpy.full_like(x, -2)
-    
-    imgNames = config.getImgNames(config.trainPath)
+    idxMap = numpy.full_like(x, -2)  
 
-    with open(config.trainPath + "classes.map.txt", "w") as fout:
+    with open(common.trainPath + "classes.map.txt", "w") as fout:
         if fout.mode == "w":
             i = 0
-            config.dprint("Creating mapping from classes.txt.old to classes.txt")
+            common.dprint("Creating mapping from classes.txt.old to classes.txt")
             for index in range(orgCnt):
                 if orgClasses[index] in newClasses:
                     idxMap[index] = i
-                    config.passed("Mapping:" + str(index) + ":" + orgClasses[index] + " wanted, to " + str(i) + ":" + newClasses[i])
+                    common.passed("Mapping:" + str(index) + ":" + orgClasses[index] + " wanted, to " + str(i) + ":" + newClasses[i])
                     fout.write("Mapping:" + str(index) + ":" + orgClasses[index] + " wanted, to " + str(i) + ":" + newClasses[i] + "\n")
                     i += 1
                 else:
                     idxMap[index] = -1
-                    config.warn("Unmapping:" + str(index) + ":" + orgClasses[index])
+                    common.warn("Unmapping:" + str(index) + ":" + orgClasses[index])
                     fout.write("Unmapping:" + str(index) + ":" + orgClasses[index] + "\n")
                
+    imgNames = common.getImgNames(common.trainPath)
     for fn in imgNames:
         idx = fn.rfind('.')
         expf = fn[0:idx] + ".txt"
-        if os.path.exists(config.trainPath + expf):
-            data = config.readTextFile(config.trainPath + expf).splitlines()
-            config.dprint(data)
+        if os.path.exists(common.trainPath + expf):
+            data = common.readTextFile(common.trainPath + expf).splitlines()
+            common.dprint(data)
             tags = []
             for line in data:
                 idx = line.find(' ')
@@ -54,31 +52,31 @@ def rmCls(minCnt):
                 if (c > -1 and idxMap[c] > -1):
                     tags.append(str(idxMap[c]) + line[idx:])
                     
-            config.dprint(tags)
-            config.dprint("Backing up " + config.trainPath + expf + " to " + config.labeled + expf)
-            os.rename(config.trainPath + expf, config.labeled + expf)
+            common.dprint(tags)
+            common.dprint("Backing up " + common.trainPath + expf + " to " + common.labeled + expf)
+            os.rename(common.trainPath + expf, common.labeled + expf)
             # if no training objects left move image to labeled as well
             if len(tags) == 0:
-                config.dprint("Moving unused " + config.trainPath + fn + " to " + config.labeled + fn)
-                os.rename(config.trainPath + fn, config.labeled + fn)
+                common.dprint("Moving unused " + common.trainPath + fn + " to " + common.labeled + fn)
+                os.rename(common.trainPath + fn, common.labeled + fn)
             else:
-                config.writeList(config.trainPath , expf, tags)
+                common.writeList(common.trainPath , expf, tags)
     
-    config.logEnd("rmCls")
+    common.logEnd("rmCls")
 
 
 # # if no arg or -1 then just report
 if len(sys.argv) == 1:
-    sys.argv.append("-1")
+    sys.argv.append("-h")
         
-config.dprint ('Number of arguments:' + str(len(sys.argv)) + 'arguments.')
-config.dprint ('Argument List:' + str(sys.argv))
-
 if sys.argv[1] == "-h":
-    print("USAGE: rmClasses ")
+    print("USAGE: rmClasses [-h] trainPath")
     print("Creates class ID mapping table between classes.txt and classes.txt.old then saves a copy to classes.map.txt in 'trainPath' folder")
-    print("Removes mappings from mapping files for classes not in classes.txt and removes mapping and image files if not training objects are left mapped.")
+    print("Removes mappings from mapping files for classes not in classes.txt and removes mapping and image files if no training objects are left mapped.")
     print("Note since this updates files there is no backup option.")
 else:
-    rmCls(int(sys.argv[1]))
+    if len(sys.argv) > 1:
+        common.setPaths(sys.argv[1])
+
+    rmCls()
 

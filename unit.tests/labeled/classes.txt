@@ -1,0 +1,15 @@
+fire
+person
+smoke
+cart
+dog
+cat
+racoon
+pig
+scorpion
+prime
+smile
+dog_pyr
+bird_crow
+helicopter
+helicopter_night

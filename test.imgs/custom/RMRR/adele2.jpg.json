@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "predictions": [
+        {
+            "confidence": 0.9681134,
+            "label": "us-plate",
+            "y_min": 0,
+            "x_min": 0,
+            "y_max": 421,
+            "x_max": 625
+        }
+    ],
+    "duration": 0
+}

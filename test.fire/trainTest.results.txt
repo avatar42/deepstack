@@ -1,0 +1,17 @@
+Of 2 expected ['helicopter_night', 'clouds'] found objects, found:3 objects ['clouds', 'helicopter_night', 'clouds'] in HV444.20211127_234941_1.00_04_09_0.Still001.jpg
+For images in:test/ with min_confidence set to 50.00%
+fire found 44.0 of 44.0 expected objects with an average confidence of 87.19% min:68.66% max:96.92% adjusted avg:87.19%
+smoke found 55.0 of 55.0 expected objects with an average confidence of 94.16% min:55.72% max:97.41% adjusted avg:94.16%
+clouds found 60.0 of 59.0 expected objects with an average confidence of 97.04% min:90.31% max:98.30% adjusted avg:98.69%
+plane_night found 1.0 of 1.0 expected objects with an average confidence of 92.76% min:92.76% max:92.76% adjusted avg:92.76%
+helicopter found 0.0 of 0.0 expected objects with an average confidence of 0 min:100.00% max:0.00% adjusted avg:0
+plane found 0.0 of 0.0 expected objects with an average confidence of 0 min:100.00% max:0.00% adjusted avg:0
+bird found 0.0 of 0.0 expected objects with an average confidence of 0 min:100.00% max:0.00% adjusted avg:0
+helicopter_night found 1.0 of 1.0 expected objects with an average confidence of 93.19% min:93.19% max:93.19% adjusted avg:93.19%
+
+Of 3633 tests
+ Ran:3633
+ Skipped:0
+ Passed:3633
+ Warnings:2
+ Failed:0
