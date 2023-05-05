@@ -19,7 +19,7 @@ class TestImg():
         tags = []
         fileName = os.path.basename(filePath)
         dprint("Testing against " + testType + " with " + filePath + " in " + color)
-        response = doPost(testType, files={"image":srcImg})
+        response = doPost(testType, files={"image":srcImg,"confidence": "0.20"})
         tidx = testType.rfind('/')
         if tidx > 0:
             testType = testType[tidx + 1:]
