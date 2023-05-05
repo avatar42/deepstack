@@ -10,18 +10,18 @@ import time
 from toot import console, User, App, http, config
 from PIL import Image
 
-from common import doPost, labelImg, writeList, readBinaryFile, getMapFileName, dprint
+from common import doPost, labelImg, writeList, readBinaryFile, readTextFile, getMapFileName, dprint
 
 class TootImg():
 
     debugPath = "debug.pics/"
 
-    def detect(self, color, testtype, filePath, srcImg, mergeImg):
+    def detect(self, color, testtype, filePath, srcImg, mergeImg, classes):
         filename = os.path.basename(filePath)
         dprint("Checking " + filePath + " with " + testtype)
 
         ## Send to DeepStack
-        response = doPost(testtype, files={"image":srcImg})
+        response = doPost(testtype, files={"image":srcImg,"confidence": "0.70"})
         tidx = testtype.rfind('/')
         if tidx > 0:
             testtype = testtype[tidx + 1:]
@@ -39,14 +39,19 @@ class TootImg():
         if os.path.exists(outfile):
             print("Already posted:"+ outfile + "=" + time.strftime('%d %b %Y %H:%M:%S', time.localtime(os.path.getmtime(outfile))))
             return None
-        dprint("Filtering out people and dogs")        
+        dprint("Filtering")
+##mouse,bird,cat,horse,sheep,cow,elephant,bear,zebra,giraffe,pig,raccoon,coyote,squirrel,bunny,cat_black,cat_grey,cat_orange,cat_tort,cat_calico,cow,deer,opossum
         ## See if there is a non dog critter in the pic    
         for item in response["predictions"]:
-            if "person" in item["label"]:
+            try:
+                idx = classes.index(item["label"])
+            except ValueError:
+                dprint("Filtering out:" + str(item["label"]))
                 return None
-            if "dog" in item["label"]:
-                return None
-            
+
+            if "cat" in item["label"]:
+                description  = description + " #cat"
+           
             ## generate labled pic
             y_max = int(item["y_max"])
             y_min = int(item["y_min"])
@@ -80,7 +85,10 @@ class TootImg():
             return 
         
         dprint(args[1])
-                
+        classes = readTextFile("classes.txt").splitlines()
+        dprint("Read:./classes.txt")
+        dprint(classes)
+               
         list_of_files = glob.glob(args[1])
         try:
             list_of_files.sort(key=os.path.getmtime)
@@ -97,7 +105,7 @@ class TootImg():
                     dprint(os.stat(filename))
                     mergeimg = Image.open(filename).convert("RGB")
                     srcimg = readBinaryFile(filename)
-                    outfile = self.detect('cyan', "custom/RMRR", filename, srcimg, mergeimg)
+                    outfile = self.detect('cyan', "custom/RMRR", filename, srcimg, mergeimg,classes)
                     if outfile:         
                         print ("marked up file written to " + outfile)
                         return
