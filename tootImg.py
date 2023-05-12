@@ -20,8 +20,8 @@ class TootImg():
         filename = os.path.basename(filePath)
         dprint("Checking " + filePath + " with " + testtype)
 
-        ## Send to DeepStack
-        response = doPost(testtype, files={"image":srcImg,"confidence": "0.70"})
+        ## Send to DeepStack with a 70% min_confidence filter
+        response = doPost(testtype, files={"image":srcImg,"min_confidence": "0.70"})
         tidx = testtype.rfind('/')
         if tidx > 0:
             testtype = testtype[tidx + 1:]
